@@ -206,8 +206,13 @@ nav button.active {
   background: var(--primary);
 }
 
-.language {
+.sidebarAccountControls {
   margin-top: auto;
+  display: grid;
+  gap: 10px;
+}
+
+.language {
   min-height: 42px;
   border: 1px solid var(--line);
   border-radius: 12px;
@@ -1382,11 +1387,19 @@ input {
     display: none;
   }
 
-  .language {
+  .sidebarAccountControls {
     position: absolute;
     right: 18px;
     top: 22px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+  }
+
+  .language {
     width: 72px;
+    min-height: 42px;
   }
 
   .logoutBtn {
@@ -1407,8 +1420,7 @@ input {
   }
 
   .topbar {
-    position: relative;
-    padding-right: 52px;
+    padding-right: 0;
   }
 
   .topbarControls {
@@ -1417,9 +1429,6 @@ input {
   }
 
   .mobileLogoutBtn {
-    position: absolute;
-    top: 0;
-    right: 0;
     width: 42px;
     min-height: 42px;
     display: inline-flex;

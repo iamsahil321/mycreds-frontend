@@ -49,9 +49,15 @@ export function AppShell({
             <p>{budgetStatus(metrics.budgetUsed, t)}</p>
           </div>
         )}
-        <button className="language" onClick={onToggleLanguage}>
-          {locale === 'hi' ? 'EN' : 'हिंदी'}
-        </button>
+        <div className="sidebarAccountControls">
+          <button className="language" onClick={onToggleLanguage}>
+            {locale === 'hi' ? 'EN' : 'हिंदी'}
+          </button>
+          <button className="softBtn iconBtn mobileLogoutBtn" aria-label={t('logout')} title={t('logout')} onClick={onLogout}>
+            <LogOut aria-hidden="true" />
+            <span>{t('logout')}</span>
+          </button>
+        </div>
         <button className="logoutBtn" onClick={onLogout}>
           {t('logout')}
         </button>
@@ -77,10 +83,6 @@ export function AppShell({
                 </button>
               </div>
             )}
-            <button className="softBtn iconBtn mobileLogoutBtn" aria-label={t('logout')} title={t('logout')} onClick={onLogout}>
-              <LogOut aria-hidden="true" />
-              <span>{t('logout')}</span>
-            </button>
           </div>
         </header>
 
