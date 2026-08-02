@@ -10,12 +10,14 @@ export function UsersAdminPage({ users, currentUser, t, onAdd, onEdit, onDelete 
       <div className="usersList">
         {users.map((user) => (
           <article className="userListRow" key={user.id}>
-            <div>
-              <strong>{user.name}</strong>
+            <div className="userInfo">
+              <div className="userNameLine">
+                <strong>{user.name}</strong>
+                <span className={user.role === 'admin' ? 'rolePill adminRole' : 'rolePill'}>{user.role === 'admin' ? t('admin') : t('user')}</span>
+              </div>
               <span>{user.email}</span>
             </div>
-            <span className={user.role === 'admin' ? 'rolePill adminRole' : 'rolePill'}>{user.role === 'admin' ? t('admin') : t('user')}</span>
-            <div className="rowActions">
+            <div className="rowActions userActions">
               <button className="softBtn" onClick={() => onEdit(user)}>
                 {t('edit')}
               </button>

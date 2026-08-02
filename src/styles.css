@@ -585,21 +585,34 @@ main {
 }
 
 .userListRow {
-  position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 14px;
   align-items: center;
   min-height: 62px;
   padding: 12px 14px;
-  padding-right: 106px;
   border: 1px solid var(--line);
   border-radius: 12px;
   background: var(--surface);
 }
 
+.userInfo {
+  min-width: 0;
+}
+
+.userNameLine {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
 .userListRow strong {
   display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-family: Manrope, sans-serif;
   font-size: 14px;
   font-weight: 900;
@@ -608,18 +621,19 @@ main {
 .userListRow span {
   display: block;
   margin-top: 3px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   color: var(--muted);
   font-size: 12px;
   font-weight: 700;
 }
 
 .userListRow .rolePill {
-  position: absolute;
-  top: 12px;
-  right: 14px;
   min-width: 72px;
-  min-height: 30px;
+  min-height: 28px;
   display: inline-grid;
+  flex: 0 0 auto;
   place-items: center;
   margin: 0;
   border: 1px solid var(--line);
@@ -642,6 +656,20 @@ main {
   display: flex;
   gap: 8px;
   align-items: center;
+}
+
+.userActions {
+  justify-self: end;
+}
+
+.userActions .softBtn,
+.userActions .dangerBtn {
+  min-height: 38px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 14px;
 }
 
 .rowActions.compact {
@@ -1488,12 +1516,11 @@ input {
   .userListRow {
     grid-template-columns: minmax(0, 1fr) auto;
     gap: 10px;
-    padding-right: 104px;
   }
 
   .userListRow .rowActions {
     display: flex;
-    justify-content: flex-start;
+    justify-content: flex-end;
   }
 
   .usersToolbar {
