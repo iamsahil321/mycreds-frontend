@@ -4,12 +4,13 @@ import { Field, Modal } from '../components/ui/index.js';
 import { formatInr } from '../lib/format.js';
 import { calculateClosing } from '../lib/money.jsx';
 
-export function UdharModal({ t, balances, locale, onClose, onSave }) {
-  const [person, setPerson] = useState('');
-  const [direction, setDirection] = useState('given');
-  const [dueDate, setDueDate] = useState('');
-  const [interestRate, setInterestRate] = useState(0);
-  const [amount, setAmount] = useState('');
+export function UdharModal({ t, balances, locale, entry, onClose, onSave }) {
+  const [person, setPerson] = useState(entry?.person || '');
+  const [direction, setDirection] = useState(entry?.direction || 'given');
+  const [dueDate, setDueDate] = useState(entry?.dueDate || '');
+  const [interestRate, setInterestRate] = useState(entry?.interestRate || 0);
+  const [amount, setAmount] = useState(entry?.amount ? String(entry.amount) : '');
+  const isEditing = Boolean(entry);
   const selectedBalance = balances.find((item) => item.person.toLowerCase() === person.trim().toLowerCase());
   const isSettlement = direction === 'settle_taken' || direction === 'settle_given';
   const closing = selectedBalance ? calculateClosing(selectedBalance.balance, dueDate || selectedBalance.dueDate, Number(interestRate || 0)) : null;
@@ -50,13 +51,13 @@ export function UdharModal({ t, balances, locale, onClose, onSave }) {
   }
 
   return (
-    <Modal title={t('addUdhar')} onClose={onClose}>
+    <Modal title={isEditing ? t('editUdhar') : t('addUdhar')} onClose={onClose}>
       <form onSubmit={submit} className="form">
         <Field label={t('person')}>
           <input name="person" required placeholder={t('savedContactHint')} value={person} onChange={(event) => handlePersonChange(event.target.value)} />
         </Field>
         <Field label={t('phone')}>
-          <input name="phone" inputMode="tel" placeholder="9876543210" />
+          <input name="phone" inputMode="tel" placeholder="9876543210" defaultValue={entry?.phone || ''} />
         </Field>
         <div className="directionGrid">
           {[
@@ -109,11 +110,11 @@ export function UdharModal({ t, balances, locale, onClose, onSave }) {
             />
           </Field>
           <Field label={t('date')}>
-            <input name="date" type="date" required defaultValue={new Date().toISOString().slice(0, 10)} />
+            <input name="date" type="date" required defaultValue={entry?.date || new Date().toISOString().slice(0, 10)} />
           </Field>
         </div>
         <Field label={t('note')}>
-          <input name="note" placeholder="Trip, repayment..." />
+          <input name="note" placeholder="Trip, repayment..." defaultValue={entry?.note || ''} />
         </Field>
         <button className="primaryBtn full iconBtn">
           <Save aria-hidden="true" />

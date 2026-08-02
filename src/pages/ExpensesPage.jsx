@@ -3,7 +3,7 @@ import { categories } from '../data/categories.js';
 import { ExpenseRow } from '../components/lists/index.js';
 import { List } from '../components/ui/index.js';
 
-export function ExpensesPage({ expenses, filter, setFilter, t, label, locale }) {
+export function ExpensesPage({ expenses, filter, setFilter, t, label, locale, onEdit, onDelete }) {
   function exportCsv() {
     const rows = [['date', 'note', 'category', 'amount', 'payment'], ...expenses.map((item) => [item.date, item.note, label(item.category), item.amount, item.mode])];
     const csv = rows.map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
@@ -33,7 +33,7 @@ export function ExpensesPage({ expenses, filter, setFilter, t, label, locale }) 
       </div>
       <List>
         {expenses.map((item) => (
-          <ExpenseRow key={item.id} item={item} label={label} locale={locale} />
+          <ExpenseRow key={item.id} item={item} label={label} locale={locale} onEdit={onEdit} onDelete={onDelete} />
         ))}
       </List>
     </section>

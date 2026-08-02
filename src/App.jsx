@@ -6,7 +6,7 @@ import { dictionary } from './data/i18n.js';
 import { seed } from './data/seed.js';
 import { useAppRoute } from './hooks/useAppRoute.js';
 import { buildReports, computeMetrics, filterExpensesByDate, getActiveBudgetMonth, getExpenseMonths } from './lib/money.jsx';
-import { ExpenseModal, UdharModal, UserModal } from './modals/index.js';
+import { ConfirmDeleteModal, ExpenseModal, UdharModal, UserModal } from './modals/index.js';
 import { AuthShell } from './pages/auth/AuthShell.jsx';
 import { LoginPage } from './pages/auth/LoginPage.jsx';
 import { BudgetPage, DashboardPage, ExpensesPage, ReportsPage, UdharPage, UsersAdminPage } from './pages/index.js';
@@ -20,7 +20,10 @@ export default function App() {
   const [expenseOpen, setExpenseOpen] = useState(false);
   const [udharOpen, setUdharOpen] = useState(false);
   const [userOpen, setUserOpen] = useState(false);
+  const [editingExpense, setEditingExpense] = useState(null);
+  const [editingUdhar, setEditingUdhar] = useState(null);
   const [editingUser, setEditingUser] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
   const [users, setUsers] = useState([]);
   const [expenseCategoryFilter, setExpenseCategoryFilter] = useState('all');
 
@@ -158,6 +161,18 @@ export default function App() {
     }
   }
 
+  async function saveExpense(payload) {
+    if (!editingExpense) return addExpense(payload);
+    try {
+      const { data } = await request(`/api/expenses/${editingExpense.id}`, { method: 'PUT', body: JSON.stringify(payload) });
+      setState((prev) => ({ ...prev, expenses: prev.expenses.map((item) => (item.id === data.id ? data : item)) }));
+      return data;
+    } catch (error) {
+      setSyncError(error.message || 'Could not update expense.');
+      throw error;
+    }
+  }
+
   async function addUdhar(payload) {
     try {
       const { data } = await request('/api/udhar', { method: 'POST', body: JSON.stringify(payload) });
@@ -166,6 +181,35 @@ export default function App() {
     } catch (error) {
       setSyncError(error.message || 'Could not save udhar.');
       throw error;
+    }
+  }
+
+  async function saveUdhar(payload) {
+    if (!editingUdhar) return addUdhar(payload);
+    try {
+      const { data } = await request(`/api/udhar/${editingUdhar.id}`, { method: 'PUT', body: JSON.stringify(payload) });
+      setState((prev) => ({ ...prev, udhar: prev.udhar.map((item) => (item.id === data.id ? data : item)) }));
+      return data;
+    } catch (error) {
+      setSyncError(error.message || 'Could not update udhar.');
+      throw error;
+    }
+  }
+
+  async function confirmDelete() {
+    if (!deleteTarget) return;
+    try {
+      if (deleteTarget.type === 'expense') {
+        await request(`/api/expenses/${deleteTarget.item.id}`, { method: 'DELETE' });
+        setState((prev) => ({ ...prev, expenses: prev.expenses.filter((item) => item.id !== deleteTarget.item.id) }));
+      }
+      if (deleteTarget.type === 'udhar') {
+        await request(`/api/udhar/${deleteTarget.item.id}`, { method: 'DELETE' });
+        setState((prev) => ({ ...prev, udhar: prev.udhar.filter((item) => item.id !== deleteTarget.item.id) }));
+      }
+      setDeleteTarget(null);
+    } catch (error) {
+      setSyncError(error.message || 'Could not delete item.');
     }
   }
 
@@ -227,8 +271,14 @@ export default function App() {
       syncError={syncError}
       t={t}
       locale={state.locale}
-      onAddExpense={() => setExpenseOpen(true)}
-      onAddUdhar={() => setUdharOpen(true)}
+      onAddExpense={() => {
+        setEditingExpense(null);
+        setExpenseOpen(true);
+      }}
+      onAddUdhar={() => {
+        setEditingUdhar(null);
+        setUdharOpen(true);
+      }}
       onLogout={logout}
       onRouteChange={changeRoute}
       onToggleLanguage={() => saveSettings({ locale: state.locale === 'hi' ? 'en' : 'hi' })}
@@ -241,11 +291,34 @@ export default function App() {
         <DashboardPage state={{ ...state, expenses: filteredByDate }} metrics={metrics} reportData={reportData} t={t} label={label} onRouteChange={changeRoute} />
       )}
       {route === 'expenses' && (
-        <ExpensesPage expenses={filteredExpenses} filter={expenseCategoryFilter} setFilter={setExpenseCategoryFilter} t={t} label={label} locale={state.locale} />
+        <ExpensesPage
+          expenses={filteredExpenses}
+          filter={expenseCategoryFilter}
+          setFilter={setExpenseCategoryFilter}
+          t={t}
+          label={label}
+          locale={state.locale}
+          onEdit={(expense) => {
+            setEditingExpense(expense);
+            setExpenseOpen(true);
+          }}
+          onDelete={(expense) => setDeleteTarget({ type: 'expense', item: expense })}
+        />
       )}
       {route === 'budget' && <BudgetPage state={state} onSaveBudget={saveBudget} metrics={metrics} reportData={reportData} month={activeBudgetMonth} t={t} locale={state.locale} />}
       {route === 'reports' && <ReportsPage reportData={reportData} metrics={metrics} t={t} locale={state.locale} />}
-      {route === 'udhar' && <UdharPage balances={metrics.udharBalances} t={t} locale={state.locale} />}
+      {route === 'udhar' && (
+        <UdharPage
+          balances={metrics.udharBalances}
+          t={t}
+          locale={state.locale}
+          onEdit={(entry) => {
+            setEditingUdhar(entry);
+            setUdharOpen(true);
+          }}
+          onDelete={(entry) => setDeleteTarget({ type: 'udhar', item: entry })}
+        />
+      )}
       {route === 'users' && isAdmin && (
         <UsersAdminPage
           users={users}
@@ -263,9 +336,44 @@ export default function App() {
         />
       )}
 
-      {expenseOpen && <ExpenseModal t={t} label={label} onClose={() => setExpenseOpen(false)} onSave={addExpense} onUdhar={addUdhar} />}
-      {udharOpen && <UdharModal t={t} balances={metrics.udharBalances} locale={state.locale} onClose={() => setUdharOpen(false)} onSave={addUdhar} />}
+      {expenseOpen && (
+        <ExpenseModal
+          t={t}
+          label={label}
+          expense={editingExpense}
+          onClose={() => {
+            setExpenseOpen(false);
+            setEditingExpense(null);
+          }}
+          onSave={saveExpense}
+          onUdhar={addUdhar}
+        />
+      )}
+      {udharOpen && (
+        <UdharModal
+          t={t}
+          balances={metrics.udharBalances}
+          locale={state.locale}
+          entry={editingUdhar}
+          onClose={() => {
+            setUdharOpen(false);
+            setEditingUdhar(null);
+          }}
+          onSave={saveUdhar}
+        />
+      )}
       {userOpen && <UserModal t={t} user={editingUser} onClose={() => setUserOpen(false)} onSave={saveUser} />}
+      {deleteTarget && (
+        <ConfirmDeleteModal
+          title={t('confirmDelete')}
+          message={deleteTarget.type === 'expense' ? t('confirmDeleteExpense') : t('confirmDeleteUdhar')}
+          warning={t('deleteWarning')}
+          confirmLabel={deleteTarget.type === 'expense' ? t('deleteExpense') : t('deleteUdhar')}
+          cancelLabel={t('cancel')}
+          onCancel={() => setDeleteTarget(null)}
+          onConfirm={confirmDelete}
+        />
+      )}
     </AppShell>
   );
 }

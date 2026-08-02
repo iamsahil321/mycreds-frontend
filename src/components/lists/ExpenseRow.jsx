@@ -1,8 +1,8 @@
-import { Landmark } from 'lucide-react';
+import { Landmark, Pencil, Trash2 } from 'lucide-react';
 import { categoryIcons } from '../../data/categories.js';
 import { formatInr } from '../../lib/format.js';
 
-export function ExpenseRow({ item, label, locale }) {
+export function ExpenseRow({ item, label, locale, onEdit, onDelete }) {
   const CategoryIcon = categoryIcons[item.category] || Landmark;
   return (
     <article className="dataRow">
@@ -14,6 +14,20 @@ export function ExpenseRow({ item, label, locale }) {
         <span>{label(item.category)} · {item.mode} · {item.date}</span>
       </div>
       <b className="negative">-{formatInr(item.amount, locale)}</b>
+      {(onEdit || onDelete) && (
+        <div className="rowActions compact">
+          {onEdit && (
+            <button className="iconOnlyBtn" aria-label={`Edit ${item.note}`} onClick={() => onEdit(item)}>
+              <Pencil aria-hidden="true" />
+            </button>
+          )}
+          {onDelete && (
+            <button className="iconOnlyBtn danger" aria-label={`Delete ${item.note}`} onClick={() => onDelete(item)}>
+              <Trash2 aria-hidden="true" />
+            </button>
+          )}
+        </div>
+      )}
     </article>
   );
 }

@@ -500,7 +500,7 @@ main {
 
 .dataRow {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
   gap: 12px;
   align-items: center;
   padding: 12px;
@@ -560,6 +560,33 @@ main {
   align-items: center;
 }
 
+.rowActions.compact {
+  justify-content: flex-end;
+}
+
+.iconOnlyBtn {
+  width: 38px;
+  height: 38px;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  color: var(--primary);
+  background: var(--surface);
+}
+
+.iconOnlyBtn svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 2.4;
+}
+
+.iconOnlyBtn.danger {
+  color: var(--error);
+  border-color: #ffcdd2;
+  background: var(--error-soft);
+}
+
 .dangerBtn {
   min-height: 38px;
   border: 1px solid #ffcdd2;
@@ -573,6 +600,42 @@ main {
 .dangerBtn:disabled {
   cursor: not-allowed;
   opacity: 0.5;
+}
+
+.udharRowSide {
+  display: grid;
+  justify-items: end;
+  gap: 8px;
+}
+
+.entryActionList {
+  display: grid;
+  gap: 6px;
+  min-width: 230px;
+}
+
+.entryActionRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 34px 34px;
+  align-items: center;
+  gap: 6px;
+  padding: 6px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+}
+
+.entryActionRow span {
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.entryActionRow .iconOnlyBtn {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
 }
 
 .badge {
@@ -1034,6 +1097,51 @@ input {
   stroke-width: 2.5;
 }
 
+.confirmBody {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+  padding: 14px;
+  border: 1px solid #ffcdd2;
+  border-radius: 16px;
+  background: var(--error-soft);
+}
+
+.confirmIcon {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  color: var(--error);
+  background: #fff;
+}
+
+.confirmIcon svg {
+  width: 22px;
+  height: 22px;
+  stroke-width: 2.5;
+}
+
+.confirmBody h4 {
+  margin: 0 0 4px;
+  font: 900 16px Manrope, sans-serif;
+}
+
+.confirmBody p {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.confirmActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
+}
+
 .tooltip {
   display: grid;
   gap: 4px;
@@ -1163,6 +1271,27 @@ input {
 
   .formGrid,
   .directionGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .dataRow {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .dataRow > b,
+  .rowActions.compact,
+  .udharRowSide {
+    grid-column: 2;
+    justify-self: start;
+  }
+
+  .entryActionList {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .confirmActions {
+    display: grid;
     grid-template-columns: 1fr;
   }
 }
