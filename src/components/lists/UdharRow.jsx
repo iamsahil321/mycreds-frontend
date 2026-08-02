@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowDownLeft, ArrowUpRight, Pencil, Trash2 } from 'lucide-react';
+import { ArrowDownLeft, ArrowUpRight, BookOpenText, Pencil, Trash2 } from 'lucide-react';
 import { formatInr, signedInr } from '../../lib/format.js';
 
 export function UdharRow({ item, locale, t, onEdit, onDelete }) {
@@ -29,8 +29,9 @@ export function UdharRow({ item, locale, t, onEdit, onDelete }) {
       <div className="amountCell">
         <b className={item.balance >= 0 ? 'positive' : 'negative'}>{signedInr(item.balance, locale)}</b>
         {(onEdit || onDelete) && (
-          <button className="ledgerToggle" aria-expanded={isLedgerOpen} onClick={() => setIsLedgerOpen((open) => !open)}>
-            {t('ledger')}
+          <button className="ledgerToggle" aria-label={t('ledger')} aria-expanded={isLedgerOpen} onClick={() => setIsLedgerOpen((open) => !open)}>
+            <BookOpenText aria-hidden="true" />
+            <span>{t('ledger')}</span>
           </button>
         )}
       </div>
