@@ -13,21 +13,23 @@ export function ExpenseRow({ item, label, locale, onEdit, onDelete }) {
         <strong>{item.note}</strong>
         <span>{label(item.category)} · {item.mode} · {item.date}</span>
       </div>
-      <b className="negative">-{formatInr(item.amount, locale)}</b>
-      {(onEdit || onDelete) && (
-        <div className="rowActions compact">
-          {onEdit && (
-            <button className="iconOnlyBtn" aria-label={`Edit ${item.note}`} onClick={() => onEdit(item)}>
-              <Pencil aria-hidden="true" />
-            </button>
-          )}
-          {onDelete && (
-            <button className="iconOnlyBtn danger" aria-label={`Delete ${item.note}`} onClick={() => onDelete(item)}>
-              <Trash2 aria-hidden="true" />
-            </button>
-          )}
-        </div>
-      )}
+      <div className="amountCell">
+        <b className="negative">-{formatInr(item.amount, locale)}</b>
+        {(onEdit || onDelete) && (
+          <div className="rowQuickActions" aria-label={`${item.note} actions`}>
+            {onEdit && (
+              <button className="iconOnlyBtn" aria-label={`Edit ${item.note}`} title="Edit" onClick={() => onEdit(item)}>
+                <Pencil aria-hidden="true" />
+              </button>
+            )}
+            {onDelete && (
+              <button className="iconOnlyBtn danger" aria-label={`Delete ${item.note}`} title="Delete" onClick={() => onDelete(item)}>
+                <Trash2 aria-hidden="true" />
+              </button>
+            )}
+          </div>
+        )}
+      </div>
     </article>
   );
 }

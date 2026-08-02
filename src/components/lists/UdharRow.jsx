@@ -1,10 +1,14 @@
+import { useState } from 'react';
 import { ArrowDownLeft, ArrowUpRight, Pencil, Trash2 } from 'lucide-react';
 import { formatInr, signedInr } from '../../lib/format.js';
 
 export function UdharRow({ item, locale, t, onEdit, onDelete }) {
+  const [isLedgerOpen, setIsLedgerOpen] = useState(false);
   const DirectionIcon = item.balance >= 0 ? ArrowDownLeft : ArrowUpRight;
+  const entries = item.entries.slice().sort((a, b) => b.date.localeCompare(a.date));
+
   return (
-    <article className="dataRow">
+    <article className="dataRow udharDataRow">
       <div className={item.balance >= 0 ? 'avatar receive' : 'avatar owe'}>
         <DirectionIcon aria-hidden="true" />
       </div>
@@ -22,24 +26,34 @@ export function UdharRow({ item, locale, t, onEdit, onDelete }) {
           {formatInr(item.closing.interest, locale)})
         </span>
       </div>
-      <div className="udharRowSide">
+      <div className="amountCell">
         <b className={item.balance >= 0 ? 'positive' : 'negative'}>{signedInr(item.balance, locale)}</b>
         {(onEdit || onDelete) && (
-          <div className="entryActionList">
-            {item.entries.slice().sort((a, b) => b.date.localeCompare(a.date)).map((entry) => (
-              <div className="entryActionRow" key={entry.id}>
-                <span>{entry.date} · {formatInr(entry.amount, locale)}</span>
-                <button className="iconOnlyBtn" aria-label={`Edit ${entry.person} ${entry.date}`} onClick={() => onEdit(entry)}>
+          <button className="ledgerToggle" aria-expanded={isLedgerOpen} onClick={() => setIsLedgerOpen((open) => !open)}>
+            {t('ledger')}
+          </button>
+        )}
+      </div>
+      {isLedgerOpen && (
+        <div className="ledgerPanel">
+          {entries.map((entry) => (
+            <div className="ledgerEntry" key={entry.id}>
+              <div>
+                <strong>{formatInr(entry.amount, locale)}</strong>
+                <span>{entry.date} · {entry.note || entry.direction}</span>
+              </div>
+              <div className="rowQuickActions visible">
+                <button className="iconOnlyBtn" aria-label={`Edit ${entry.person} ${entry.date}`} title={t('edit')} onClick={() => onEdit(entry)}>
                   <Pencil aria-hidden="true" />
                 </button>
-                <button className="iconOnlyBtn danger" aria-label={`Delete ${entry.person} ${entry.date}`} onClick={() => onDelete(entry)}>
+                <button className="iconOnlyBtn danger" aria-label={`Delete ${entry.person} ${entry.date}`} title={t('delete')} onClick={() => onDelete(entry)}>
                   <Trash2 aria-hidden="true" />
                 </button>
               </div>
-            ))}
-          </div>
-        )}
-      </div>
+            </div>
+          ))}
+        </div>
+      )}
     </article>
   );
 }
