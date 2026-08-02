@@ -216,9 +216,15 @@ nav button.active {
   min-height: 42px;
   border: 1px solid var(--line);
   border-radius: 12px;
+  padding: 0 14px;
   background: var(--surface);
   color: var(--text);
   font-weight: 900;
+}
+
+.language svg {
+  width: 19px;
+  height: 19px;
 }
 
 .logoutBtn {
@@ -1398,8 +1404,13 @@ input {
   }
 
   .language {
-    width: 72px;
+    width: 42px;
     min-height: 42px;
+    padding: 0;
+  }
+
+  .language span {
+    display: none;
   }
 
   .logoutBtn {

@@ -1,4 +1,4 @@
-import { HandCoins, LogOut, Plus, UsersRound } from 'lucide-react';
+import { HandCoins, Languages, LogOut, Plus, UsersRound } from 'lucide-react';
 import { navIcons as moneyNavIcons } from '../../data/categories.js';
 import { budgetStatus } from '../../lib/money.jsx';
 import { IconSlot } from '../IconSlot.jsx';
@@ -20,6 +20,7 @@ export function AppShell({
 }) {
   const tabs = isAdmin ? ['users'] : ['dashboard', 'expenses', 'budget', 'reports', 'udhar'];
   const navIcons = isAdmin ? { users: UsersRound } : moneyNavIcons;
+  const languageLabel = locale === 'hi' ? 'Switch to English' : 'हिंदी में बदलें';
 
   return (
     <div className="app">
@@ -50,8 +51,9 @@ export function AppShell({
           </div>
         )}
         <div className="sidebarAccountControls">
-          <button className="language" onClick={onToggleLanguage}>
-            {locale === 'hi' ? 'EN' : 'हिंदी'}
+          <button className="language iconBtn" aria-label={languageLabel} title={languageLabel} onClick={onToggleLanguage}>
+            <Languages aria-hidden="true" />
+            <span>{locale === 'hi' ? 'EN' : 'हिंदी'}</span>
           </button>
           <button className="softBtn iconBtn mobileLogoutBtn" aria-label={t('logout')} title={t('logout')} onClick={onLogout}>
             <LogOut aria-hidden="true" />
