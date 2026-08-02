@@ -1,10 +1,13 @@
-import { List, PanelHeader } from '../components/ui/index.js';
-
 export function UsersAdminPage({ users, currentUser, t, onAdd, onEdit, onDelete }) {
   return (
-    <section className="panel usersPanel">
-      <PanelHeader title={t('users')} action={t('addUser')} onClick={onAdd} />
-      <List>
+    <section className="usersPanel">
+      <div className="usersToolbar">
+        <span>{users.length} {t('users').toLowerCase()}</span>
+        <button className="primaryBtn" onClick={onAdd}>
+          {t('addUser')}
+        </button>
+      </div>
+      <div className="usersList">
         {users.map((user) => (
           <article className="userListRow" key={user.id}>
             <div>
@@ -22,7 +25,7 @@ export function UsersAdminPage({ users, currentUser, t, onAdd, onEdit, onDelete 
             </div>
           </article>
         ))}
-      </List>
+      </div>
     </section>
   );
 }
