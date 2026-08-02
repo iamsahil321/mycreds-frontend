@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Save } from 'lucide-react';
 import { Bar, BarChart, RadialBar, RadialBarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { categoryColors, palette } from '../data/theme.js';
@@ -8,15 +8,10 @@ import { ChartTooltip, Metric, PanelHeader } from '../components/ui/index.js';
 
 export function BudgetPage({ state, onSaveBudget, metrics, reportData, month, t, locale }) {
   const currentBudget = getMonthlyBudget(state, month);
-  const [budget, setBudget] = useState(currentBudget);
   const categoryPressure = reportData.category.slice(0, 8).map((item) => ({
     ...item,
     budgetShare: metrics.budget ? Math.round((item.amount / metrics.budget) * 100) : 0,
   }));
-
-  useEffect(() => {
-    setBudget(currentBudget);
-  }, [currentBudget]);
 
   return (
     <div className="budgetPage">
@@ -26,16 +21,7 @@ export function BudgetPage({ state, onSaveBudget, metrics, reportData, month, t,
           <h3>{t('budgetPlan')}</h3>
           <p>{t('budgetSub')}</p>
         </div>
-        <div className="budgetEditor">
-          <label className="field">
-            <span>{template(t('budgetForMonth'), { month: formatMonthOption(month) })}</span>
-            <input value={budget} type="number" min="0" onChange={(event) => setBudget(Number(event.target.value))} />
-          </label>
-          <button className="primaryBtn iconBtn" onClick={() => onSaveBudget(month, budget)}>
-            <Save aria-hidden="true" />
-            {t('saveBudget')}
-          </button>
-        </div>
+        <BudgetEditor key={month} month={month} initialBudget={currentBudget} t={t} onSaveBudget={onSaveBudget} />
       </section>
 
       <section className="budgetSummaryGrid">
@@ -96,6 +82,23 @@ export function BudgetPage({ state, onSaveBudget, metrics, reportData, month, t,
           </ResponsiveContainer>
         </section>
       </div>
+    </div>
+  );
+}
+
+function BudgetEditor({ month, initialBudget, t, onSaveBudget }) {
+  const [budget, setBudget] = useState(initialBudget);
+
+  return (
+    <div className="budgetEditor">
+      <label className="field">
+        <span>{template(t('budgetForMonth'), { month: formatMonthOption(month) })}</span>
+        <input value={budget} type="number" min="0" onChange={(event) => setBudget(Number(event.target.value))} />
+      </label>
+      <button className="primaryBtn iconBtn" onClick={() => onSaveBudget(month, budget)}>
+        <Save aria-hidden="true" />
+        {t('saveBudget')}
+      </button>
     </div>
   );
 }
