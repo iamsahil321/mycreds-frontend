@@ -1,5 +1,5 @@
-import { HandCoins, Plus } from 'lucide-react';
-import { navIcons } from '../../data/categories.js';
+import { HandCoins, Plus, UsersRound } from 'lucide-react';
+import { navIcons as moneyNavIcons } from '../../data/categories.js';
 import { budgetStatus } from '../../lib/money.jsx';
 import { IconSlot } from '../IconSlot.jsx';
 import { Brand } from '../ui/index.js';
@@ -18,7 +18,8 @@ export function AppShell({
   onRouteChange,
   onToggleLanguage,
 }) {
-  const tabs = isAdmin ? ['dashboard', 'expenses', 'budget', 'reports', 'udhar', 'users'] : ['dashboard', 'expenses', 'budget', 'reports', 'udhar'];
+  const tabs = isAdmin ? ['users'] : ['dashboard', 'expenses', 'budget', 'reports', 'udhar'];
+  const navIcons = isAdmin ? { users: UsersRound } : moneyNavIcons;
 
   return (
     <div className="app">
@@ -38,14 +39,16 @@ export function AppShell({
             </button>
           ))}
         </nav>
-        <div className="sidebarCard">
-          <span>{t('budgetHealth')}</span>
-          <strong>{Math.round(metrics.budgetUsed)}%</strong>
-          <div className="tinyTrack">
-            <i style={{ width: `${Math.min(metrics.budgetUsed, 100)}%` }} />
+        {!isAdmin && (
+          <div className="sidebarCard">
+            <span>{t('budgetHealth')}</span>
+            <strong>{Math.round(metrics.budgetUsed)}%</strong>
+            <div className="tinyTrack">
+              <i style={{ width: `${Math.min(metrics.budgetUsed, 100)}%` }} />
+            </div>
+            <p>{budgetStatus(metrics.budgetUsed, t)}</p>
           </div>
-          <p>{budgetStatus(metrics.budgetUsed, t)}</p>
-        </div>
+        )}
         <button className="language" onClick={onToggleLanguage}>
           {locale === 'hi' ? 'EN' : 'हिंदी'}
         </button>
@@ -61,16 +64,18 @@ export function AppShell({
             <h2>{activeRoute === 'reports' ? t('reportTitle') : t(activeRoute)}</h2>
             {activeRoute === 'reports' && <p className="subhead">{t('reportSub')}</p>}
           </div>
-          <div className="actions">
-            <button className="softBtn iconBtn" onClick={onAddUdhar}>
-              <HandCoins aria-hidden="true" />
-              {t('addUdhar')}
-            </button>
-            <button className="primaryBtn iconBtn" onClick={onAddExpense}>
-              <Plus aria-hidden="true" />
-              {t('addExpense')}
-            </button>
-          </div>
+          {!isAdmin && (
+            <div className="actions">
+              <button className="softBtn iconBtn" onClick={onAddUdhar}>
+                <HandCoins aria-hidden="true" />
+                {t('addUdhar')}
+              </button>
+              <button className="primaryBtn iconBtn" onClick={onAddExpense}>
+                <Plus aria-hidden="true" />
+                {t('addExpense')}
+              </button>
+            </div>
+          )}
         </header>
 
         {syncError && <div className="syncBanner">{syncError}</div>}

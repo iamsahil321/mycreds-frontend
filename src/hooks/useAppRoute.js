@@ -11,13 +11,17 @@ export function useAppRoute(isAdmin) {
   }, []);
 
   useEffect(() => {
+    if (isAdmin && route !== 'users') {
+      navigate('users', { replace: true });
+      return;
+    }
     if (route === 'users' && !isAdmin) {
       navigate(defaultRoute, { replace: true });
     }
   }, [route, isAdmin]);
 
   function navigate(nextRoute, options = {}) {
-    const allowedRoute = nextRoute === 'users' && !isAdmin ? defaultRoute : nextRoute;
+    const allowedRoute = isAdmin ? 'users' : nextRoute === 'users' ? defaultRoute : nextRoute;
     const nextPath = pathForRoute(allowedRoute);
     if (window.location.pathname !== nextPath) {
       const method = options.replace ? 'replaceState' : 'pushState';

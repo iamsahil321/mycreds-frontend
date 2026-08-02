@@ -30,6 +30,7 @@ export default function App() {
   const t = (key) => dictionary[state.locale][key] || key;
   const isAdmin = auth.user?.role === 'admin' || auth.user?.role === 'owner';
   const { route, navigate } = useAppRoute(isAdmin);
+  const activeRoute = isAdmin ? 'users' : route;
   const label = (key) => categories.find((item) => item.key === key)?.[state.locale] || key;
   const availableMonths = useMemo(() => getExpenseMonths(state.expenses), [state.expenses]);
   const activeBudgetMonth = getActiveBudgetMonth(state.filters);
@@ -94,8 +95,11 @@ export default function App() {
         expenses: expensesData.data || [],
         udhar: udharData.data || [],
       });
-      if (settings.defaultTab && settings.defaultTab !== route) {
-        navigate(settings.defaultTab === 'users' && !canUseAdminTab ? 'dashboard' : settings.defaultTab, { replace: true });
+      if (canUseAdminTab) {
+        navigate('users', { replace: true });
+        await loadUsers();
+      } else if (settings.defaultTab && settings.defaultTab !== route) {
+        navigate(settings.defaultTab === 'users' ? 'dashboard' : settings.defaultTab, { replace: true });
       }
       setDataStatus('ready');
     } catch (error) {
@@ -124,10 +128,11 @@ export default function App() {
   }
 
   async function saveSettings(patch) {
+    if (isAdmin) patch.defaultTab = 'users';
     if (patch.defaultTab === 'users' && !isAdmin) patch.defaultTab = 'dashboard';
     const currentSettings = {
       locale: state.locale,
-      defaultTab: route,
+      defaultTab: activeRoute,
       filters: state.filters,
       ...patch,
     };
@@ -145,6 +150,12 @@ export default function App() {
   }
 
   function changeRoute(nextRoute) {
+    if (isAdmin) {
+      loadUsers();
+      navigate('users');
+      saveSettings({ defaultTab: 'users' });
+      return;
+    }
     if (nextRoute === 'users') loadUsers();
     navigate(nextRoute);
     saveSettings({ defaultTab: nextRoute });
@@ -265,7 +276,7 @@ export default function App() {
 
   return (
     <AppShell
-      activeRoute={route}
+      activeRoute={activeRoute}
       isAdmin={isAdmin}
       metrics={metrics}
       syncError={syncError}
@@ -283,14 +294,14 @@ export default function App() {
       onRouteChange={changeRoute}
       onToggleLanguage={() => saveSettings({ locale: state.locale === 'hi' ? 'en' : 'hi' })}
     >
-      {route !== 'udhar' && route !== 'users' && (
+      {activeRoute !== 'udhar' && activeRoute !== 'users' && (
         <DateFilter filters={state.filters} months={availableMonths} t={t} onChange={(filters) => saveSettings({ filters })} />
       )}
 
-      {route === 'dashboard' && (
+      {activeRoute === 'dashboard' && (
         <DashboardPage state={{ ...state, expenses: filteredByDate }} metrics={metrics} reportData={reportData} t={t} label={label} onRouteChange={changeRoute} />
       )}
-      {route === 'expenses' && (
+      {activeRoute === 'expenses' && (
         <ExpensesPage
           expenses={filteredExpenses}
           filter={expenseCategoryFilter}
@@ -305,9 +316,9 @@ export default function App() {
           onDelete={(expense) => setDeleteTarget({ type: 'expense', item: expense })}
         />
       )}
-      {route === 'budget' && <BudgetPage state={state} onSaveBudget={saveBudget} metrics={metrics} reportData={reportData} month={activeBudgetMonth} t={t} locale={state.locale} />}
-      {route === 'reports' && <ReportsPage reportData={reportData} metrics={metrics} t={t} locale={state.locale} />}
-      {route === 'udhar' && (
+      {activeRoute === 'budget' && <BudgetPage state={state} onSaveBudget={saveBudget} metrics={metrics} reportData={reportData} month={activeBudgetMonth} t={t} locale={state.locale} />}
+      {activeRoute === 'reports' && <ReportsPage reportData={reportData} metrics={metrics} t={t} locale={state.locale} />}
+      {activeRoute === 'udhar' && (
         <UdharPage
           balances={metrics.udharBalances}
           t={t}
@@ -319,7 +330,7 @@ export default function App() {
           onDelete={(entry) => setDeleteTarget({ type: 'udhar', item: entry })}
         />
       )}
-      {route === 'users' && isAdmin && (
+      {activeRoute === 'users' && isAdmin && (
         <UsersAdminPage
           users={users}
           currentUser={auth.user}
