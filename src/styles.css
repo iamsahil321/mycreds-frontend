@@ -554,6 +554,56 @@ main {
   grid-template-columns: auto minmax(0, 1fr) auto;
 }
 
+.usersPanel {
+  max-width: 920px;
+}
+
+.userListRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 14px;
+  align-items: center;
+  min-height: 68px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface-soft);
+}
+
+.userListRow strong {
+  display: block;
+  font-family: Manrope, sans-serif;
+  font-weight: 900;
+}
+
+.userListRow span {
+  display: block;
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.rolePill {
+  min-width: 72px;
+  min-height: 30px;
+  display: inline-grid;
+  place-items: center;
+  margin: 0;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  background: var(--surface);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.rolePill.adminRole {
+  color: var(--success);
+  border-color: #c8e6c9;
+  background: var(--success-soft);
+}
+
 .rowActions {
   display: flex;
   gap: 8px;
@@ -1399,6 +1449,20 @@ input {
   .confirmActions {
     display: grid;
     grid-template-columns: 1fr;
+  }
+
+  .userListRow {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .userListRow .rowActions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .rolePill {
+    justify-self: start;
   }
 }
 
