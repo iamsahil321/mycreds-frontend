@@ -5,7 +5,7 @@ import { categories } from './data/categories.js';
 import { dictionary } from './data/i18n.js';
 import { seed } from './data/seed.js';
 import { useAppRoute } from './hooks/useAppRoute.js';
-import { buildReports, computeMetrics, filterExpensesByDate, getActiveBudgetMonth, getExpenseMonths } from './lib/money.jsx';
+import { buildReports, computeMetrics, filterExpensesByDate, getActiveBudgetMonth, getExpenseMonths, normalizeDateFilters } from './lib/money.jsx';
 import { ConfirmDeleteModal, ExpenseModal, UdharModal, UserModal } from './modals/index.js';
 import { AuthShell } from './pages/auth/AuthShell.jsx';
 import { LoginPage } from './pages/auth/LoginPage.jsx';
@@ -87,12 +87,14 @@ export default function App() {
       const settings = settingsData.data || {};
       const canUseAdminTab = user?.role === 'admin' || user?.role === 'owner';
       const budgets = Object.fromEntries((budgetsData.data || []).map((item) => [item.month, item.amount]));
+      const expenses = expensesData.data || [];
+      const filters = normalizeDateFilters({ ...seed.filters, ...(settings.filters || {}) }, expenses);
       setState({
         ...seed,
         locale: settings.locale || seed.locale,
-        filters: { ...seed.filters, ...(settings.filters || {}) },
+        filters,
         budgets,
-        expenses: expensesData.data || [],
+        expenses,
         udhar: udharData.data || [],
       });
       if (canUseAdminTab) {

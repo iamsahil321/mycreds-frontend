@@ -2,9 +2,12 @@ import { seed, todayIso } from '../../data/seed.js';
 import { addDays, formatMonthOption, monthEnd } from '../../lib/money.jsx';
 
 export function DateFilter({ filters = seed.filters, months, t, onChange }) {
+  const currentMonth = todayIso.slice(0, 7);
+  const monthOptions = [...new Set([currentMonth, filters.month, ...months].filter(Boolean))].sort((a, b) => b.localeCompare(a));
+
   const setPreset = (preset) => {
     if (preset === 'month') {
-      const month = filters.month || todayIso.slice(0, 7);
+      const month = currentMonth;
       onChange({ ...filters, preset, month, from: `${month}-01`, to: monthEnd(month) });
       return;
     }
@@ -32,15 +35,15 @@ export function DateFilter({ filters = seed.filters, months, t, onChange }) {
           ['all', t('allTime')],
           ['custom', t('custom')],
         ].map(([value, label]) => (
-          <button key={value} className={filters.preset === value ? 'selected' : ''} onClick={() => setPreset(value)}>
+          <button key={value} className={filters.preset === value && (value !== 'month' || filters.month === currentMonth) ? 'selected' : ''} onClick={() => setPreset(value)}>
             {label}
           </button>
         ))}
       </div>
       <label>
         <span>{t('month')}</span>
-        <select value={filters.month || months[0] || todayIso.slice(0, 7)} onChange={(event) => setMonth(event.target.value)}>
-          {months.map((month) => (
+        <select value={filters.month || currentMonth} onChange={(event) => setMonth(event.target.value)}>
+          {monthOptions.map((month) => (
             <option key={month} value={month}>
               {formatMonthOption(month)}
             </option>

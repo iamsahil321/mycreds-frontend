@@ -56,6 +56,22 @@ export function filterExpensesByDate(expenses, filters = seed.filters) {
   return expenses.filter((item) => (!from || item.date >= from) && (!to || item.date <= to));
 }
 
+export function normalizeDateFilters(filters = seed.filters, expenses = []) {
+  const currentMonth = todayIso.slice(0, 7);
+  if (filters.preset !== 'month') return { ...seed.filters, ...filters };
+
+  const availableMonths = getExpenseMonths(expenses);
+  const month = availableMonths.includes(filters.month) ? filters.month : currentMonth;
+  return {
+    ...seed.filters,
+    ...filters,
+    preset: 'month',
+    month,
+    from: `${month}-01`,
+    to: monthEnd(month),
+  };
+}
+
 export function getActiveBudgetMonth(filters = seed.filters) {
   if (filters.preset === 'month' && filters.month) return filters.month;
   if (filters.to) return filters.to.slice(0, 7);
