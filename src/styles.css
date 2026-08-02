@@ -288,6 +288,12 @@ main {
   margin-bottom: 24px;
 }
 
+.topbarControls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .filterBar {
   display: flex;
   align-items: end;
@@ -379,6 +385,10 @@ main {
   height: 18px;
   flex: 0 0 auto;
   stroke-width: 2.5;
+}
+
+.mobileLogoutBtn {
+  display: none;
 }
 
 .primaryBtn {
@@ -1394,6 +1404,35 @@ input {
   .filterBar {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .topbar {
+    position: relative;
+    padding-right: 52px;
+  }
+
+  .topbarControls {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .mobileLogoutBtn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 42px;
+    min-height: 42px;
+    display: inline-flex;
+    padding: 0;
+  }
+
+  .mobileLogoutBtn span {
+    display: none;
+  }
+
+  .mobileLogoutBtn svg {
+    width: 20px;
+    height: 20px;
   }
 
   .filterBar label {

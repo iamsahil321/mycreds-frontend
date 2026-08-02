@@ -1,4 +1,4 @@
-import { HandCoins, Plus, UsersRound } from 'lucide-react';
+import { HandCoins, LogOut, Plus, UsersRound } from 'lucide-react';
 import { navIcons as moneyNavIcons } from '../../data/categories.js';
 import { budgetStatus } from '../../lib/money.jsx';
 import { IconSlot } from '../IconSlot.jsx';
@@ -64,18 +64,24 @@ export function AppShell({
             <h2>{activeRoute === 'reports' ? t('reportTitle') : t(activeRoute)}</h2>
             {activeRoute === 'reports' && <p className="subhead">{t('reportSub')}</p>}
           </div>
-          {!isAdmin && (
-            <div className="actions">
-              <button className="softBtn iconBtn" onClick={onAddUdhar}>
-                <HandCoins aria-hidden="true" />
-                {t('addUdhar')}
-              </button>
-              <button className="primaryBtn iconBtn" onClick={onAddExpense}>
-                <Plus aria-hidden="true" />
-                {t('addExpense')}
-              </button>
-            </div>
-          )}
+          <div className="topbarControls">
+            {!isAdmin && (
+              <div className="actions">
+                <button className="softBtn iconBtn" onClick={onAddUdhar}>
+                  <HandCoins aria-hidden="true" />
+                  {t('addUdhar')}
+                </button>
+                <button className="primaryBtn iconBtn" onClick={onAddExpense}>
+                  <Plus aria-hidden="true" />
+                  {t('addExpense')}
+                </button>
+              </div>
+            )}
+            <button className="softBtn iconBtn mobileLogoutBtn" aria-label={t('logout')} title={t('logout')} onClick={onLogout}>
+              <LogOut aria-hidden="true" />
+              <span>{t('logout')}</span>
+            </button>
+          </div>
         </header>
 
         {syncError && <div className="syncBanner">{syncError}</div>}
