@@ -613,7 +613,7 @@ main {
   font-weight: 700;
 }
 
-.rolePill {
+.userListRow .rolePill {
   position: absolute;
   top: 12px;
   right: 14px;
@@ -628,9 +628,11 @@ main {
   background: var(--surface);
   font-size: 12px;
   font-weight: 900;
+  line-height: 1;
+  text-align: center;
 }
 
-.rolePill.adminRole {
+.userListRow .rolePill.adminRole {
   color: var(--success);
   border-color: #c8e6c9;
   background: var(--success-soft);
