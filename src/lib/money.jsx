@@ -1,20 +1,9 @@
-import { palette, categoryColors } from '../data/theme.js';
 import { categories } from '../data/categories.js';
 import { seed, todayIso } from '../data/seed.js';
-import { formatInr, entryValue } from './format.js';
+import { entryValue } from './format.js';
 
 export function template(text, values) {
   return Object.entries(values).reduce((result, [key, value]) => result.replace(`{${key}}`, value), text);
-}
-
-export function Field({ label, children }) {
-  return <label className="field"><span>{label}</span>{children}</label>;
-}
-
-export function ChartTooltip({ active, payload, label, locale }) {
-  if (!active || !payload?.length) return null;
-  const row = payload[0];
-  return <div className="tooltip"><b>{label || row.name}</b><span>{formatInr(row.value, locale)}</span></div>;
 }
 
 export function computeMetrics(state, scopedExpenses = state.expenses, month = getActiveBudgetMonth(state.filters)) {
