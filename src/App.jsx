@@ -6,7 +6,7 @@ import { dictionary } from './data/i18n.js';
 import { seed } from './data/seed.js';
 import { useAppRoute } from './hooks/useAppRoute.js';
 import { buildReports, computeMetrics, filterExpensesByDate, getActiveBudgetMonth, getExpenseMonths, normalizeDateFilters } from './lib/money.jsx';
-import { ConfirmDeleteModal, ExpenseModal, UdharModal, UserModal } from './modals/index.js';
+import { ConfirmDeleteModal, ExpenseModal, UdharModal, UdharTransactionModal, UserModal } from './modals/index.js';
 import { AuthShell } from './pages/auth/AuthShell.jsx';
 import { LoginPage } from './pages/auth/LoginPage.jsx';
 import { BudgetPage, DashboardPage, ExpensesPage, ReportsPage, UdharPage, UsersAdminPage } from './pages/index.js';
@@ -22,6 +22,10 @@ export default function App() {
   const [userOpen, setUserOpen] = useState(false);
   const [editingExpense, setEditingExpense] = useState(null);
   const [editingUdhar, setEditingUdhar] = useState(null);
+  const [transactionOpen, setTransactionOpen] = useState(false);
+  const [editingUdharTransaction, setEditingUdharTransaction] = useState(null);
+  const [activeUdharAccount, setActiveUdharAccount] = useState(null);
+  const [selectedUdharAccountId, setSelectedUdharAccountId] = useState('');
   const [editingUser, setEditingUser] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [users, setUsers] = useState([]);
@@ -81,7 +85,7 @@ export default function App() {
         request('/api/settings'),
         request('/api/budgets'),
         request('/api/expenses?limit=2000'),
-        request('/api/udhar?limit=2000'),
+        request('/api/udhar/accounts'),
       ]);
       if (!mounted) return;
       const settings = settingsData.data || {};
@@ -186,13 +190,21 @@ export default function App() {
     }
   }
 
+  async function loadUdharAccounts() {
+    const { data } = await request('/api/udhar/accounts');
+    setState((prev) => ({ ...prev, udhar: data || [] }));
+    setSelectedUdharAccountId((current) => current || data?.[0]?.id || '');
+    return data || [];
+  }
+
   async function addUdhar(payload) {
     try {
-      const { data } = await request('/api/udhar', { method: 'POST', body: JSON.stringify(payload) });
+      const { data } = await request('/api/udhar/accounts', { method: 'POST', body: JSON.stringify(payload) });
       setState((prev) => ({ ...prev, udhar: [data, ...prev.udhar] }));
+      setSelectedUdharAccountId(data.id);
       return data;
     } catch (error) {
-      setSyncError(error.message || 'Could not save udhar.');
+      setSyncError(error.message || 'Could not save udhar account.');
       throw error;
     }
   }
@@ -200,13 +212,47 @@ export default function App() {
   async function saveUdhar(payload) {
     if (!editingUdhar) return addUdhar(payload);
     try {
-      const { data } = await request(`/api/udhar/${editingUdhar.id}`, { method: 'PUT', body: JSON.stringify(payload) });
+      const { data } = await request(`/api/udhar/accounts/${editingUdhar.id}`, { method: 'PUT', body: JSON.stringify(payload) });
       setState((prev) => ({ ...prev, udhar: prev.udhar.map((item) => (item.id === data.id ? data : item)) }));
       return data;
     } catch (error) {
-      setSyncError(error.message || 'Could not update udhar.');
+      setSyncError(error.message || 'Could not update udhar account.');
       throw error;
     }
+  }
+
+  async function saveUdharTransaction(payload) {
+    try {
+      const { accountId, ...body } = payload;
+      if (editingUdharTransaction) {
+        await request(`/api/udhar/transactions/${editingUdharTransaction.id}`, { method: 'PUT', body: JSON.stringify(body) });
+      } else {
+        await request(`/api/udhar/accounts/${accountId}/transactions`, { method: 'POST', body: JSON.stringify(body) });
+      }
+      const accounts = await loadUdharAccounts();
+      const nextAccount = accounts.find((account) => account.id === accountId);
+      if (nextAccount) setActiveUdharAccount(nextAccount);
+      return nextAccount;
+    } catch (error) {
+      setSyncError(error.message || 'Could not save ledger entry.');
+      throw error;
+    }
+  }
+
+  async function addUdharDebitFromExpense(payload) {
+    const name = payload.person?.trim();
+    if (!name) return null;
+    let accounts = state.udhar;
+    let account = accounts.find((item) => item.name.toLowerCase() === name.toLowerCase());
+    if (!account) {
+      account = await addUdhar({ name, phone: '', monthlyInterestRate: 0, interestStartDate: payload.date, notes: '' });
+    }
+    await request(`/api/udhar/accounts/${account.id}/transactions`, {
+      method: 'POST',
+      body: JSON.stringify({ type: 'debit', amount: payload.amount, note: payload.note, date: payload.date }),
+    });
+    await loadUdharAccounts();
+    return account;
   }
 
   async function confirmDelete() {
@@ -217,8 +263,13 @@ export default function App() {
         setState((prev) => ({ ...prev, expenses: prev.expenses.filter((item) => item.id !== deleteTarget.item.id) }));
       }
       if (deleteTarget.type === 'udhar') {
-        await request(`/api/udhar/${deleteTarget.item.id}`, { method: 'DELETE' });
+        await request(`/api/udhar/accounts/${deleteTarget.item.id}`, { method: 'DELETE' });
         setState((prev) => ({ ...prev, udhar: prev.udhar.filter((item) => item.id !== deleteTarget.item.id) }));
+        if (selectedUdharAccountId === deleteTarget.item.id) setSelectedUdharAccountId('');
+      }
+      if (deleteTarget.type === 'udharTransaction') {
+        await request(`/api/udhar/transactions/${deleteTarget.item.id}`, { method: 'DELETE' });
+        await loadUdharAccounts();
       }
       setDeleteTarget(null);
     } catch (error) {
@@ -322,14 +373,31 @@ export default function App() {
       {activeRoute === 'reports' && <ReportsPage reportData={reportData} metrics={metrics} t={t} locale={state.locale} />}
       {activeRoute === 'udhar' && (
         <UdharPage
-          balances={metrics.udharBalances}
+          accounts={metrics.udharBalances}
+          selectedAccountId={selectedUdharAccountId}
           t={t}
           locale={state.locale}
-          onEdit={(entry) => {
-            setEditingUdhar(entry);
+          onSelectAccount={(account) => setSelectedUdharAccountId(account.id)}
+          onAddAccount={() => {
+            setEditingUdhar(null);
             setUdharOpen(true);
           }}
-          onDelete={(entry) => setDeleteTarget({ type: 'udhar', item: entry })}
+          onEditAccount={(account) => {
+            setEditingUdhar(account);
+            setUdharOpen(true);
+          }}
+          onDeleteAccount={(account) => setDeleteTarget({ type: 'udhar', item: account })}
+          onAddTransaction={(account) => {
+            setActiveUdharAccount(account);
+            setEditingUdharTransaction(null);
+            setTransactionOpen(true);
+          }}
+          onEditTransaction={(account, transaction) => {
+            setActiveUdharAccount(account);
+            setEditingUdharTransaction(transaction);
+            setTransactionOpen(true);
+          }}
+          onDeleteTransaction={(transaction) => setDeleteTarget({ type: 'udharTransaction', item: transaction })}
         />
       )}
       {activeRoute === 'users' && isAdmin && (
@@ -359,15 +427,13 @@ export default function App() {
             setEditingExpense(null);
           }}
           onSave={saveExpense}
-          onUdhar={addUdhar}
+          onUdhar={addUdharDebitFromExpense}
         />
       )}
       {udharOpen && (
         <UdharModal
           t={t}
-          balances={metrics.udharBalances}
-          locale={state.locale}
-          entry={editingUdhar}
+          account={editingUdhar}
           onClose={() => {
             setUdharOpen(false);
             setEditingUdhar(null);
@@ -375,13 +441,38 @@ export default function App() {
           onSave={saveUdhar}
         />
       )}
+      {transactionOpen && activeUdharAccount && (
+        <UdharTransactionModal
+          t={t}
+          account={activeUdharAccount}
+          transaction={editingUdharTransaction}
+          onClose={() => {
+            setTransactionOpen(false);
+            setEditingUdharTransaction(null);
+            setActiveUdharAccount(null);
+          }}
+          onSave={saveUdharTransaction}
+        />
+      )}
       {userOpen && <UserModal t={t} user={editingUser} onClose={() => setUserOpen(false)} onSave={saveUser} />}
       {deleteTarget && (
         <ConfirmDeleteModal
           title={t('confirmDelete')}
-          message={deleteTarget.type === 'expense' ? t('confirmDeleteExpense') : t('confirmDeleteUdhar')}
+          message={
+            deleteTarget.type === 'expense'
+              ? t('confirmDeleteExpense')
+              : deleteTarget.type === 'udhar'
+                ? t('confirmDeleteUdharAccount')
+                : t('confirmDeleteUdhar')
+          }
           warning={t('deleteWarning')}
-          confirmLabel={deleteTarget.type === 'expense' ? t('deleteExpense') : t('deleteUdhar')}
+          confirmLabel={
+            deleteTarget.type === 'expense'
+              ? t('deleteExpense')
+              : deleteTarget.type === 'udhar'
+                ? t('deleteUdharAccount')
+                : t('deleteLedgerEntry')
+          }
           cancelLabel={t('cancel')}
           onCancel={() => setDeleteTarget(null)}
           onConfirm={confirmDelete}

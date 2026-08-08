@@ -775,30 +775,58 @@ main {
   align-items: start;
 }
 
-.ledgerToggle {
-  min-height: 30px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
+.udharDataRow.selected {
+  border-color: #bbdefb;
+  background: #f4f9ff;
+}
+
+.rowMainButton {
+  min-width: 0;
+  border: 0;
+  padding: 0;
+  color: inherit;
+  background: transparent;
+  text-align: left;
+}
+
+.udharAccountGrid {
+  display: grid;
+  grid-template-columns: minmax(320px, 0.86fr) minmax(0, 1.14fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.ledgerDetailPanel {
+  min-height: 420px;
+}
+
+.ledgerSummary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.ledgerSummary div {
+  padding: 12px;
   border: 1px solid var(--line);
-  border-radius: 999px;
-  padding: 0 12px;
-  color: var(--primary);
-  background: var(--surface);
+  border-radius: 14px;
+  background: var(--surface-soft);
+}
+
+.ledgerSummary span {
+  display: block;
+  color: var(--muted);
   font-size: 12px;
   font-weight: 900;
 }
 
-.ledgerToggle svg {
-  width: 15px;
-  height: 15px;
-  stroke-width: 2.5;
-}
-
-.ledgerToggle[aria-expanded="true"] {
-  border-color: #bbdefb;
-  background: var(--primary-soft);
+.ledgerSummary strong {
+  display: block;
+  margin-top: 6px;
+  font-family: Manrope, sans-serif;
+  font-size: 18px;
+  font-weight: 900;
 }
 
 .ledgerPanel {
@@ -811,6 +839,11 @@ main {
   border: 1px solid var(--line);
   border-radius: 14px;
   background: var(--surface);
+}
+
+.accountLedgerPanel {
+  grid-column: auto;
+  margin: 0;
 }
 
 .ledgerEntry {
@@ -848,12 +881,6 @@ main {
   font: 900 11px Manrope, sans-serif;
 }
 
-.overdueBadge {
-  color: var(--warning);
-  background: var(--warning-soft);
-  border: 1px solid #ffcc80;
-}
-
 .peopleGrid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -887,11 +914,6 @@ main {
   font-size: 11px;
   font-style: normal;
   font-weight: 900;
-}
-
-.overdueCard {
-  border-color: #ffcc80;
-  background: var(--warning-soft);
 }
 
 .reportHero {
@@ -1081,38 +1103,6 @@ input {
   border-radius: 14px;
   background: var(--surface-soft);
   font-weight: 900;
-}
-
-.closingBox {
-  display: grid;
-  gap: 8px;
-  padding: 14px;
-  border: 1px solid #bbdefb;
-  border-radius: 16px;
-  background: #f4f9ff;
-}
-
-.closingBox div {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.closingBox span,
-.closingBox p {
-  color: var(--muted);
-  font-size: 12px;
-  font-weight: 900;
-}
-
-.closingBox strong {
-  color: var(--primary);
-  font-size: 15px;
-}
-
-.closingBox p {
-  margin-top: 2px;
-  color: var(--primary);
 }
 
 .budgetCallout {
@@ -1468,7 +1458,9 @@ input {
   .reportsGrid.three,
   .reportHero,
   .donutLayout,
-  .peopleGrid {
+  .peopleGrid,
+  .udharAccountGrid,
+  .ledgerSummary {
     grid-template-columns: 1fr;
     display: grid;
   }
@@ -1524,33 +1516,8 @@ input {
     position: relative;
   }
 
-  .udharDataRow > div:nth-child(2) {
-    padding-right: 48px;
-  }
-
   .udharDataRow .amountCell {
     grid-column: 2;
-    padding-right: 48px;
-  }
-
-  .udharDataRow .ledgerToggle {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    width: 38px;
-    height: 38px;
-    min-height: 38px;
-    padding: 0;
-    border-radius: 12px;
-  }
-
-  .udharDataRow .ledgerToggle span {
-    display: none;
-  }
-
-  .udharDataRow .ledgerToggle svg {
-    width: 20px;
-    height: 20px;
   }
 
   .ledgerEntry {

@@ -1,6 +1,5 @@
 import { categories } from '../data/categories.js';
 import { seed, todayIso } from '../data/seed.js';
-import { entryValue } from './format.js';
 
 export function template(text, values) {
   return Object.entries(values).reduce((result, [key, value]) => result.replace(`{${key}}`, value), text);
@@ -10,42 +9,10 @@ export function computeMetrics(state, scopedExpenses = state.expenses, month = g
   const spent = scopedExpenses.reduce((sum, item) => sum + item.amount, 0);
   const budget = getMonthlyBudget(state, month);
   const budgetLeft = budget - spent;
-  const byPerson = new Map();
-  state.udhar.forEach((entry) => {
-    const current = byPerson.get(entry.person) || { person: entry.person, phone: entry.phone, balance: 0, entries: [] };
-    current.balance += entryValue(entry);
-    current.entries.push(entry);
-    if (entry.phone) current.phone = entry.phone;
-    byPerson.set(entry.person, current);
-  });
-  const udharBalances = Array.from(byPerson.values()).map(enrichUdharBalance).sort((a, b) => Math.abs(b.closing.total) - Math.abs(a.closing.total));
-  const receivable = udharBalances.reduce((sum, item) => sum + Math.max(item.balance, 0), 0);
-  const payable = udharBalances.reduce((sum, item) => sum + Math.abs(Math.min(item.balance, 0)), 0);
+  const udharBalances = [...(state.udhar || [])].sort((a, b) => Math.abs(b.totalBalance || 0) - Math.abs(a.totalBalance || 0));
+  const receivable = udharBalances.reduce((sum, item) => sum + Math.max(item.totalBalance || 0, 0), 0);
+  const payable = udharBalances.reduce((sum, item) => sum + Math.abs(Math.min(item.totalBalance || 0, 0)), 0);
   return { spent, budget, budgetLeft, budgetUsed: budget ? (spent / budget) * 100 : 0, udharBalances, receivable, payable, net: receivable - payable };
-}
-
-function enrichUdharBalance(person) {
-  const latestPrincipal = [...person.entries]
-    .filter((entry) => entry.direction === 'given' || entry.direction === 'taken')
-    .sort((a, b) => b.date.localeCompare(a.date))[0];
-  const dueDate = latestPrincipal?.dueDate || '';
-  const interestRate = Number(latestPrincipal?.interestRate || 0);
-  const closing = calculateClosing(person.balance, dueDate, interestRate);
-  return {
-    ...person,
-    dueDate,
-    interestRate,
-    daysOverdue: closing.daysOverdue,
-    isOverdue: closing.daysOverdue > 0,
-    closing,
-  };
-}
-
-export function calculateClosing(balance, dueDate, interestRate) {
-  const daysOverdue = dueDate && balance !== 0 ? Math.max(0, daysBetween(dueDate, todayIso)) : 0;
-  const principal = Math.abs(balance);
-  const interest = Math.round(principal * (Number(interestRate || 0) / 100) * (daysOverdue / 365));
-  return { principal, interest, total: principal + interest, daysOverdue };
 }
 
 export function filterExpensesByDate(expenses, filters = seed.filters) {
@@ -100,12 +67,6 @@ export function addDays(dateIso, days) {
   const date = new Date(`${dateIso}T00:00:00`);
   date.setDate(date.getDate() + days);
   return date.toISOString().slice(0, 10);
-}
-
-export function daysBetween(fromIso, toIso) {
-  const start = new Date(`${fromIso}T00:00:00`);
-  const end = new Date(`${toIso}T00:00:00`);
-  return Math.floor((end - start) / 86400000);
 }
 
 export function buildReports(state, label, allExpenses = state.expenses, filters = seed.filters) {

@@ -9,7 +9,3 @@ export function formatInr(value, locale = 'en') {
 export function signedInr(value, locale) {
   return `${value > 0 ? '+' : value < 0 ? '-' : ''}${formatInr(value, locale)}`;
 }
-
-export function entryValue(entry) {
-  return entry.direction === 'given' || entry.direction === 'settle_given' ? entry.amount : -entry.amount;
-}

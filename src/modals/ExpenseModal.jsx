@@ -19,7 +19,7 @@ export function ExpenseModal({ t, label, expense, onClose, onSave, onUdhar }) {
     };
     await onSave(payload);
     if (!isEditing && linkUdhar && data.get('person')) {
-      await onUdhar({ person: data.get('person'), phone: '', direction: 'given', amount: payload.amount, note: payload.note, date: payload.date });
+      await onUdhar({ person: data.get('person'), amount: payload.amount, note: payload.note, date: payload.date });
     }
     onClose();
   }
@@ -57,7 +57,7 @@ export function ExpenseModal({ t, label, expense, onClose, onSave, onUdhar }) {
         {!isEditing && (
           <>
             <label className="check">
-              <input type="checkbox" checked={linkUdhar} onChange={(event) => setLinkUdhar(event.target.checked)} /> Add as Diya in Udhar
+              <input type="checkbox" checked={linkUdhar} onChange={(event) => setLinkUdhar(event.target.checked)} /> Add debit to Udhar ledger
             </label>
             {linkUdhar && (
               <Field label={t('person')}>

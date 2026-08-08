@@ -1,60 +1,38 @@
-import { useState } from 'react';
-import { ArrowDownLeft, ArrowUpRight, BookOpenText, Pencil, Trash2 } from 'lucide-react';
+import { ArrowDownLeft, ArrowUpRight, CircleCheck, Pencil, Trash2 } from 'lucide-react';
 import { formatInr, signedInr } from '../../lib/format.js';
 
-export function UdharRow({ item, locale, t, onEdit, onDelete }) {
-  const [isLedgerOpen, setIsLedgerOpen] = useState(false);
-  const DirectionIcon = item.balance >= 0 ? ArrowDownLeft : ArrowUpRight;
-  const entries = item.entries.slice().sort((a, b) => b.date.localeCompare(a.date));
+export function UdharRow({ account, locale, t, selected, onOpen, onEdit, onDelete }) {
+  const balance = account.totalBalance || 0;
+  const DirectionIcon = balance > 0 ? ArrowDownLeft : balance < 0 ? ArrowUpRight : CircleCheck;
 
   return (
-    <article className="dataRow udharDataRow">
-      <div className={item.balance >= 0 ? 'avatar receive' : 'avatar owe'}>
+    <article className={selected ? 'dataRow udharDataRow selected' : 'dataRow udharDataRow'}>
+      <button className={balance > 0 ? 'avatar receive' : balance < 0 ? 'avatar owe' : 'avatar'} onClick={() => onOpen(account)} aria-label={`${t('openLedger')} ${account.name}`}>
         <DirectionIcon aria-hidden="true" />
-      </div>
-      <div>
-        <strong>
-          {item.person} {item.isOverdue && <small className="badge overdueBadge">{t('overdue')}</small>}
-        </strong>
+      </button>
+      <button className="rowMainButton" onClick={() => onOpen(account)}>
+        <strong>{account.name}</strong>
         <span>
-          {item.entries.length} {t('entries')}
-          {item.dueDate ? ` · ${t('due')} ${item.dueDate}` : ''}
-          {item.interestRate ? ` · ${item.interestRate}% p.a.` : ''}
+          {account.transactionCount || 0} {t('ledgerEntries')}
+          {account.monthlyInterestRate ? ` · ${account.monthlyInterestRate}% ${t('monthlyInterest')}` : ''}
         </span>
-        <span>
-          {t('close')}: {formatInr(item.closing.total, locale)} ({formatInr(item.closing.principal, locale)} +{' '}
-          {formatInr(item.closing.interest, locale)})
-        </span>
-      </div>
-      <div className="amountCell">
-        <b className={item.balance >= 0 ? 'positive' : 'negative'}>{signedInr(item.balance, locale)}</b>
-        {(onEdit || onDelete) && (
-          <button className="ledgerToggle" aria-label={t('ledger')} aria-expanded={isLedgerOpen} onClick={() => setIsLedgerOpen((open) => !open)}>
-            <BookOpenText aria-hidden="true" />
-            <span>{t('ledger')}</span>
-          </button>
+        {account.accruedInterest?.amount > 0 && (
+          <span>
+            {t('accruedInterest')}: {formatInr(account.accruedInterest.amount, locale)}
+          </span>
         )}
-      </div>
-      {isLedgerOpen && (
-        <div className="ledgerPanel">
-          {entries.map((entry) => (
-            <div className="ledgerEntry" key={entry.id}>
-              <div>
-                <strong>{formatInr(entry.amount, locale)}</strong>
-                <span>{entry.date} · {entry.note || entry.direction}</span>
-              </div>
-              <div className="rowQuickActions visible">
-                <button className="iconOnlyBtn" aria-label={`Edit ${entry.person} ${entry.date}`} title={t('edit')} onClick={() => onEdit(entry)}>
-                  <Pencil aria-hidden="true" />
-                </button>
-                <button className="iconOnlyBtn danger" aria-label={`Delete ${entry.person} ${entry.date}`} title={t('delete')} onClick={() => onDelete(entry)}>
-                  <Trash2 aria-hidden="true" />
-                </button>
-              </div>
-            </div>
-          ))}
+      </button>
+      <div className="amountCell">
+        <b className={balance >= 0 ? 'positive' : 'negative'}>{signedInr(balance, locale)}</b>
+        <div className="rowQuickActions visible">
+          <button className="iconOnlyBtn" aria-label={`${t('edit')} ${account.name}`} title={t('edit')} onClick={() => onEdit(account)}>
+            <Pencil aria-hidden="true" />
+          </button>
+          <button className="iconOnlyBtn danger" aria-label={`${t('delete')} ${account.name}`} title={t('delete')} onClick={() => onDelete(account)}>
+            <Trash2 aria-hidden="true" />
+          </button>
         </div>
-      )}
+      </div>
     </article>
   );
 }
