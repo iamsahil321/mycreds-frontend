@@ -772,7 +772,9 @@ main {
 }
 
 .udharDataRow {
-  align-items: start;
+  position: relative;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
 }
 
 .udharDataRow.selected {
@@ -782,93 +784,682 @@ main {
 
 .rowMainButton {
   min-width: 0;
+  display: grid;
+  gap: 8px;
+  min-height: 88px;
+  align-content: space-between;
+}
+
+.udharAccountCard {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: 6px;
   border: 0;
-  padding: 0;
+  padding: 0 132px 0 0;
   color: inherit;
   background: transparent;
   text-align: left;
 }
 
-.udharAccountGrid {
+.udharCardHeader {
+  display: block;
+}
+
+.udharIdentityBlock {
   display: grid;
-  grid-template-columns: minmax(320px, 0.86fr) minmax(0, 1.14fr);
-  gap: 18px;
+  gap: 3px;
+}
+
+.udharNameLine {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.udharNameLine strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 16px;
+}
+
+.udharPhoneLine {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.udharStatusBadge {
+  min-height: 22px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+
+.udharStatusBadge.receive {
+  background: #e8f5e9;
+  color: var(--success);
+}
+
+.udharStatusBadge.owe {
+  background: #fdecec;
+  color: var(--error);
+}
+
+.udharStatusBadge.settled {
+  background: #eef2f7;
+  color: var(--muted);
+}
+
+.udharMetaSummary {
+  display: grid;
   align-items: start;
+  align-self: end;
+  gap: 2px;
+  min-width: 0;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
 }
 
-.ledgerDetailPanel {
-  min-height: 420px;
+.rowMainButton .udharMetaSummary.quiet {
+  margin-top: auto;
 }
 
-.ledgerSummary {
+.udharMetaSummary span {
+  position: relative;
+  white-space: nowrap;
+}
+
+.udharMetaSummary span + span::before {
+  content: none;
+}
+
+.udharMetaSummary.quiet {
+  color: #7e8794;
+}
+
+.udharListPage,
+.udharDetailPage {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-  margin-bottom: 14px;
+  gap: 18px;
 }
 
-.ledgerSummary div {
-  padding: 12px;
+.udharListHeader,
+.udharDetailTopbar,
+.udharActionBar,
+.udharHero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.udharDetailTopbar {
+  width: 100%;
+}
+
+.udharDetailTopbar .backBtn {
+  justify-content: flex-start;
+}
+
+.udharDetailTopbar .rowQuickActions {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.udharDataRow .amountCell {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  min-width: 118px;
+  display: grid;
+  justify-items: end;
+  gap: 2px;
+  text-align: right;
+}
+
+.udharDataRow .amountCell small {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.udharDataRow .amountCell b {
+  font-size: 20px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.udharDataRow > .rowQuickActions {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  width: 118px;
+  align-self: auto;
+  justify-content: flex-end;
+  gap: 0;
+}
+
+.udharDataRow > .rowQuickActions .iconOnlyBtn {
+  width: 34px;
+  height: 34px;
+}
+
+.iconOnlyBtn.subtleDanger {
+  border-color: transparent;
+  color: #c46a6a;
+  background: transparent;
+}
+
+.iconOnlyBtn.subtleDanger:hover {
+  border-color: #f3d7d9;
+  color: var(--error);
+  background: #fff6f6;
+}
+
+.udharHero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  padding: 24px 26px;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: var(--surface);
+  box-shadow: 0 18px 44px rgba(17, 24, 39, 0.07);
+}
+
+.udharHeroIdentity {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.udharHeroAvatar {
+  width: 76px;
+  height: 76px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--primary-soft);
+  color: var(--primary);
+  font: 900 32px Sora, sans-serif;
+}
+
+.udharHeroIdentity h3,
+.udharListHeader h3 {
+  font-size: 28px;
+}
+
+.udharHeroNameRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.udharHeroIdentity > div {
+  display: grid;
+  gap: 4px;
+}
+
+.udharHeroIdentity p:last-child,
+.udharHeroAmount span,
+.udharHeroMeta {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.udharHeroCheck {
+  width: 22px;
+  height: 22px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 999px;
+  color: var(--success);
+  background: var(--success-soft);
+  flex-shrink: 0;
+}
+
+.udharHeroCheck svg {
+  width: 15px;
+  height: 15px;
+}
+
+.udharHeroAmount {
+  margin-left: auto;
+  min-width: 260px;
+  padding: 4px 0;
+  text-align: right;
+}
+
+.udharHeroAmount small {
+  display: block;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.udharHeroAmount strong {
+  display: block;
+  margin-top: 6px;
+  font: 900 42px Manrope, sans-serif;
+  letter-spacing: 0;
+}
+
+.udharHeroMeta {
+  grid-column: 1;
+  margin-top: 20px;
+  color: #243b64;
+  font-size: 14px;
+}
+
+.udharHeroDetails {
+  grid-column: 2;
+  justify-items: end;
+  display: grid;
+  gap: 10px;
+  align-self: end;
+  margin-top: 18px;
+}
+
+.udharHeroDetails.open {
+  grid-column: 1 / -1;
+  justify-items: stretch;
+  margin-top: 2px;
+}
+
+.udharActionBar {
+  justify-content: flex-start;
+}
+
+.interestToggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  text-align: left;
+}
+
+.interestToggle.inline {
+  width: fit-content;
+  min-height: 34px;
+  justify-content: flex-start;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: var(--primary-soft);
+}
+
+.interestToggle.inline span {
+  color: var(--primary);
+}
+
+.interestToggle span,
+.interestToggle b {
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.interestToggle b {
+  color: var(--primary);
+}
+
+.interestGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.interestGrid.compact {
+  margin-top: 4px;
+}
+
+.interestGrid article {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  align-items: center;
+  column-gap: 12px;
+  padding: 12px 14px;
   border: 1px solid var(--line);
   border-radius: 14px;
   background: var(--surface-soft);
 }
 
-.ledgerSummary span {
-  display: block;
+.interestGrid span {
   color: var(--muted);
   font-size: 12px;
   font-weight: 900;
 }
 
-.ledgerSummary strong {
+.interestGrid strong {
+  grid-column: 2;
   display: block;
-  margin-top: 6px;
-  font-family: Manrope, sans-serif;
-  font-size: 18px;
+  margin-top: 2px;
+  font: 900 16px Manrope, sans-serif;
+}
+
+.interestIconBubble {
+  grid-row: 1 / span 2;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--primary);
+  background: var(--primary-soft);
+}
+
+.interestIconBubble svg {
+  width: 21px;
+  height: 21px;
+  stroke-width: 2.5;
+}
+
+.interestGrid article:nth-child(2) .interestIconBubble,
+.interestGrid article:nth-child(6) .interestIconBubble {
+  color: var(--success);
+  background: var(--success-soft);
+}
+
+.interestGrid article:nth-child(4) .interestIconBubble {
+  color: var(--warning);
+  background: var(--warning-soft);
+}
+
+.interestGrid article:nth-child(5) .interestIconBubble,
+.interestGrid article:nth-child(7) .interestIconBubble,
+.interestGrid article:nth-child(8) .interestIconBubble {
+  color: var(--secondary);
+  background: #f3e5f5;
+}
+
+.ledgerFilterBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.ledgerChip {
+  min-height: 34px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0 12px;
+  color: var(--muted);
+  background: var(--surface-soft);
+  font-size: 12px;
   font-weight: 900;
 }
 
-.ledgerPanel {
-  grid-column: 2 / -1;
-  display: grid;
+.ledgerChip.selected {
+  color: var(--primary);
+  border-color: #bbdefb;
+  background: var(--primary-soft);
+}
+
+.backBtn {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
   gap: 8px;
+  border: 0;
+  padding: 0;
+  color: var(--muted);
+  background: transparent;
+  font-weight: 900;
+}
+
+.backBtn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.ledgerTableWrap {
   width: 100%;
-  margin-top: 2px;
-  padding: 10px;
+  overflow-x: auto;
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: 16px;
   background: var(--surface);
 }
 
-.accountLedgerPanel {
-  grid-column: auto;
-  margin: 0;
+.ledgerTable {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: separate;
+  border-spacing: 0;
 }
 
-.ledgerEntry {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 10px;
-  min-height: 44px;
-  padding: 8px 10px;
-  border-radius: 12px;
+.ledgerTable th {
+  height: 46px;
+  padding: 0 16px;
+  color: var(--muted);
   background: var(--surface-soft);
+  border-bottom: 1px solid var(--line);
+  font-size: 12px;
+  font-weight: 900;
+  text-align: left;
+  text-transform: uppercase;
 }
 
-.ledgerEntry strong {
+.ledgerTable td {
+  min-height: 62px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: middle;
+}
+
+.ledgerTable tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.ledgerTable tbody tr:hover {
+  background: #fafcff;
+}
+
+.ledgerTable tbody tr.interestEntry {
+  background: #fbfcff;
+}
+
+.ledgerTable th:nth-child(3),
+.ledgerTable th:nth-child(4),
+.ledgerTable td:nth-child(3),
+.ledgerTable td:nth-child(4) {
+  text-align: right;
+}
+
+.ledgerTable th:last-child,
+.ledgerTable td:last-child {
+  width: 96px;
+  text-align: right;
+}
+
+.ledgerTable td strong {
   display: block;
   font-family: Manrope, sans-serif;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 900;
 }
 
-.ledgerEntry span {
-  margin: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.ledgerTable td span {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.ledgerTypePill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  color: var(--primary);
+  background: var(--primary-soft);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.ledgerDateLine {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ledgerTable .ledgerDateLine {
+  min-width: 190px;
+}
+
+.ledgerTypePill svg {
+  width: 15px;
+  height: 15px;
+  stroke-width: 2.6;
+}
+
+.ledgerTypePill.interest {
+  color: var(--warning);
+  background: var(--warning-soft);
+}
+
+.tableActions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.ledgerMobileCards {
+  display: none;
+}
+
+.speedDial {
+  position: fixed;
+  right: 28px;
+  bottom: 28px;
+  z-index: 16;
+  display: grid;
+  justify-items: end;
+  gap: 12px;
+}
+
+.speedDialFab {
+  width: 58px;
+  height: 58px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  color: #fff;
+  background: var(--primary);
+  box-shadow: 0 16px 34px rgba(25, 118, 210, 0.34);
+  transition:
+    transform 160ms ease,
+    background 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.speedDialFab svg {
+  width: 25px;
+  height: 25px;
+  stroke-width: 2.7;
+}
+
+.speedDial.open .speedDialFab {
+  background: var(--text);
+  transform: rotate(90deg);
+  box-shadow: 0 16px 34px rgba(15, 23, 42, 0.24);
+}
+
+.speedDialActions {
+  display: grid;
+  gap: 10px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(10px);
+  transition:
+    opacity 160ms ease,
+    transform 160ms ease;
+}
+
+.speedDial.open .speedDialActions {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.speedDialAction {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0 14px 0 16px;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
+  font-weight: 900;
+}
+
+.speedDialAction svg {
+  width: 19px;
+  height: 19px;
+  color: var(--primary);
+  stroke-width: 2.6;
+}
+
+.speedDialAction.primary {
+  color: #fff;
+  border-color: var(--primary);
+  background: var(--primary);
+}
+
+.speedDialAction.primary svg {
+  color: #fff;
+}
+
+.emptyState {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  padding: 28px 20px;
+  border: 1px dashed var(--line);
+  border-radius: 18px;
+  background: var(--surface-soft);
+  text-align: center;
+}
+
+.emptyState p {
+  max-width: 420px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.compactEmptyState {
+  padding: 22px 18px;
 }
 
 .badge {
@@ -1420,8 +2011,39 @@ input {
   }
 
   .topbarControls {
+    width: 100%;
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .topbarControls > .primaryBtn,
+  .topbarControls > .softBtn,
+  .topbarControls > .actions {
+    width: auto;
+    align-self: flex-start;
+  }
+
+  .topbarControls > .primaryBtn,
+  .topbarControls > .softBtn {
+    min-width: 0;
+    padding-inline: 14px;
+  }
+
+  .topbar.route-udhar {
+    flex-direction: row;
+    align-items: flex-end;
+    gap: 12px;
+  }
+
+  .topbar.route-udhar > div:first-child {
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+
+  .topbar.route-udhar .topbarControls {
+    width: auto;
+    flex: 0 0 auto;
+    align-items: flex-end;
   }
 
   .mobileLogoutBtn {
@@ -1459,8 +2081,7 @@ input {
   .reportHero,
   .donutLayout,
   .peopleGrid,
-  .udharAccountGrid,
-  .ledgerSummary {
+  .interestGrid {
     grid-template-columns: 1fr;
     display: grid;
   }
@@ -1498,35 +2119,320 @@ input {
     grid-template-columns: auto minmax(0, 1fr);
   }
 
-  .amountCell {
-    grid-column: 2;
-    justify-self: start;
-    justify-items: start;
+  .udharAccountCard {
+    grid-column: 1;
+    grid-row: 1;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+    gap: 8px;
+    padding: 0 112px 0 0;
   }
 
   .rowQuickActions {
     opacity: 1;
   }
 
-  .ledgerPanel {
-    grid-column: 1 / -1;
-  }
-
   .udharDataRow {
     position: relative;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 8px;
+    padding: 12px;
+  }
+
+  .udharDataRow > .rowQuickActions {
+    right: 10px;
+    bottom: 10px;
+    width: 92px;
+    justify-content: flex-end;
+  }
+
+  .udharNameLine {
+    min-width: 0;
+    flex-wrap: wrap;
+    row-gap: 6px;
+  }
+
+  .udharStatusBadge {
+    min-height: 20px;
+    padding: 0 7px;
+    font-size: 10px;
+  }
+
+  .udharNameLine strong {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 15px;
+  }
+
+  .udharPhoneLine {
+    font-size: 11px;
+  }
+
+  .udharMetaSummary {
+    gap: 2px;
+    font-size: 11px;
+  }
+
+  .udharMetaSummary span + span::before {
+    content: none;
   }
 
   .udharDataRow .amountCell {
-    grid-column: 2;
+    top: 10px;
+    right: 10px;
+    min-width: 92px;
+    gap: 2px;
   }
 
-  .ledgerEntry {
-    grid-template-columns: 1fr;
+  .udharDataRow .amountCell small {
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+  .udharDataRow .amountCell b {
+    font-size: 17px;
+    white-space: nowrap;
+  }
+
+  .udharDataRow > .rowQuickActions .iconOnlyBtn {
+    width: 32px;
+    height: 32px;
+  }
+
+  .udharHero,
+  .udharActionBar,
+  .udharListHeader {
+    flex-direction: column;
     align-items: stretch;
   }
 
-  .ledgerEntry .rowQuickActions {
+  .udharDetailTopbar {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .udharHero {
+    grid-template-columns: minmax(0, 1fr) auto;
+    padding: 18px;
+    gap: 16px;
+  }
+
+  .udharHeroIdentity {
+    gap: 12px;
+  }
+
+  .udharHeroAvatar {
+    width: 50px;
+    height: 50px;
+    font-size: 22px;
+  }
+
+  .udharHeroIdentity h3,
+  .udharListHeader h3 {
+    font-size: 20px;
+  }
+
+  .udharHeroCheck {
+    width: 20px;
+    height: 20px;
+  }
+
+  .udharHeroCheck svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .udharDetailTopbar .rowQuickActions {
+    margin-left: auto;
     justify-content: flex-end;
+  }
+
+  .udharHeroAmount {
+    min-width: 150px;
+    margin-left: 0;
+    align-self: center;
+    text-align: right;
+  }
+
+  .udharHeroAmount strong {
+    font-size: 27px;
+  }
+
+  .udharHeroAmount small {
+    max-width: none;
+    font-size: 10.5px;
+    white-space: nowrap;
+  }
+
+  .udharHeroMeta {
+    grid-column: 1 / -1;
+    margin-top: 0;
+    font-size: 12px;
+  }
+
+  .udharHeroDetails,
+  .udharHeroDetails.open {
+    grid-column: 1 / -1;
+    justify-items: stretch;
+    margin-top: 0;
+  }
+
+  .interestToggle.inline {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .interestGrid.compact {
+    gap: 0;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--surface);
+  }
+
+  .interestGrid article {
+    grid-template-columns: 34px minmax(0, 1fr) auto;
+    gap: 10px;
+    padding: 12px;
+    border: 0;
+    border-radius: 0;
+    background: var(--surface);
+  }
+
+  .interestGrid article + article {
+    border-top: 1px solid var(--line);
+  }
+
+  .interestGrid strong {
+    grid-column: 3;
+    grid-row: 1;
+    margin-top: 0;
+    text-align: right;
+    font-size: 14px;
+  }
+
+  .interestIconBubble {
+    width: 34px;
+    height: 34px;
+  }
+
+  .interestIconBubble svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .ledgerTableWrap {
+    display: block;
+    margin-right: 0;
+    overflow: visible;
+    border-radius: 14px;
+    border: 0;
+    background: transparent;
+  }
+
+  .ledgerTable {
+    display: none;
+  }
+
+  .ledgerMobileCards {
+    display: grid;
+    gap: 10px;
+    padding-bottom: 76px;
+  }
+
+  .ledgerMobileCard {
+    display: grid;
+    gap: 10px;
+    padding: 14px;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: var(--surface);
+    box-shadow: 0 8px 18px rgba(17, 24, 39, 0.05);
+  }
+
+  .ledgerMobileCard.interestEntry {
+    background: #fbfcff;
+    border-color: #d7e3f4;
+  }
+
+  .ledgerMobileTop {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .ledgerMobileTop > div {
+    min-width: 0;
+    display: grid;
+    gap: 4px;
+  }
+
+  .ledgerMobileTop strong {
+    font-size: 15px;
+  }
+
+  .ledgerMobileEnd {
+    flex: 0 0 auto;
+    display: grid;
+    justify-items: end;
+    gap: 10px;
+    text-align: right;
+  }
+
+  .ledgerMobileTop span,
+  .ledgerMobileCard p {
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 800;
+  }
+
+  .ledgerMobileTop .ledgerDateLine {
+    min-width: 0;
+  }
+
+  .ledgerMobileTop .ledgerTypePill {
+    min-height: 26px;
+    padding: 0 9px;
+  }
+
+  .ledgerMobileCard .tableActions {
+    justify-content: flex-end;
+    gap: 6px;
+  }
+
+  .ledgerMobileCard p {
+    padding-top: 2px;
+    line-height: 1.45;
+  }
+
+  .speedDial {
+    right: 22px;
+    bottom: calc(92px + env(safe-area-inset-bottom));
+  }
+
+  .speedDialFab {
+    width: 56px;
+    height: 56px;
+  }
+
+  .udharActionBar {
+    position: static;
+    padding: 10px;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 12px 28px rgba(17, 24, 39, 0.1);
+  }
+
+  .udharActionBar .primaryBtn,
+  .udharActionBar .softBtn {
+    flex: 1 1 0;
   }
 
   .confirmActions {

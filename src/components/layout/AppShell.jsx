@@ -7,6 +7,8 @@ import { Brand } from '../ui/index.js';
 export function AppShell({
   children,
   activeRoute,
+  headerActions,
+  hideHeader = false,
   isAdmin,
   metrics,
   syncError,
@@ -21,6 +23,18 @@ export function AppShell({
   const tabs = isAdmin ? ['users'] : ['dashboard', 'expenses', 'budget', 'reports', 'udhar'];
   const navIcons = isAdmin ? { users: UsersRound } : moneyNavIcons;
   const languageLabel = locale === 'hi' ? 'Switch to English' : 'हिंदी में बदलें';
+  const defaultActions = !isAdmin ? (
+    <div className="actions">
+      <button className="softBtn iconBtn" onClick={onAddUdhar}>
+        <HandCoins aria-hidden="true" />
+        {t('addUdhar')}
+      </button>
+      <button className="primaryBtn iconBtn" onClick={onAddExpense}>
+        <Plus aria-hidden="true" />
+        {t('addExpense')}
+      </button>
+    </div>
+  ) : null;
 
   return (
     <div className="app">
@@ -66,27 +80,16 @@ export function AppShell({
       </aside>
 
       <main>
-        <header className="topbar">
-          <div>
-            <p className="kicker">Kharcha</p>
-            <h2>{activeRoute === 'reports' ? t('reportTitle') : t(activeRoute)}</h2>
-            {activeRoute === 'reports' && <p className="subhead">{t('reportSub')}</p>}
-          </div>
-          <div className="topbarControls">
-            {!isAdmin && (
-              <div className="actions">
-                <button className="softBtn iconBtn" onClick={onAddUdhar}>
-                  <HandCoins aria-hidden="true" />
-                  {t('addUdhar')}
-                </button>
-                <button className="primaryBtn iconBtn" onClick={onAddExpense}>
-                  <Plus aria-hidden="true" />
-                  {t('addExpense')}
-                </button>
-              </div>
-            )}
-          </div>
-        </header>
+        {!hideHeader && (
+          <header className={`topbar route-${activeRoute}`}>
+            <div>
+              <p className="kicker">Kharcha</p>
+              <h2>{activeRoute === 'reports' ? t('reportTitle') : t(activeRoute)}</h2>
+              {activeRoute === 'reports' && <p className="subhead">{t('reportSub')}</p>}
+            </div>
+            <div className="topbarControls">{headerActions === undefined ? defaultActions : headerActions}</div>
+          </header>
+        )}
 
         {syncError && <div className="syncBanner">{syncError}</div>}
         {children}

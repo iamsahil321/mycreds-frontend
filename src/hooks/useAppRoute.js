@@ -2,10 +2,11 @@ import { useEffect, useState } from 'react';
 import { defaultRoute, pathForRoute, routeFromPath } from '../routes/appRoutes.js';
 
 export function useAppRoute(isAdmin) {
-  const [route, setRoute] = useState(() => routeFromPath());
+  const [path, setPath] = useState(() => window.location.pathname);
+  const route = routeFromPath(path);
 
   useEffect(() => {
-    const handlePopState = () => setRoute(routeFromPath());
+    const handlePopState = () => setPath(window.location.pathname);
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
@@ -23,12 +24,18 @@ export function useAppRoute(isAdmin) {
   function navigate(nextRoute, options = {}) {
     const allowedRoute = isAdmin ? 'users' : nextRoute === 'users' ? defaultRoute : nextRoute;
     const nextPath = pathForRoute(allowedRoute);
-    if (window.location.pathname !== nextPath) {
+    if (path !== nextPath) {
       const method = options.replace ? 'replaceState' : 'pushState';
       window.history[method]({}, '', nextPath);
     }
-    setRoute(allowedRoute);
+    setPath(nextPath);
   }
 
-  return { route, navigate };
+  function navigatePath(nextPath, options = {}) {
+    const method = options.replace ? 'replaceState' : 'pushState';
+    if (path !== nextPath) window.history[method]({}, '', nextPath);
+    setPath(nextPath);
+  }
+
+  return { route, path, navigate, navigatePath };
 }

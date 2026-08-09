@@ -11,9 +11,8 @@ export function UdharModal({ t, account, onClose, onSave }) {
       name: data.get('name'),
       phone: data.get('phone'),
       monthlyInterestRate: Number(data.get('monthlyInterestRate') || 0),
-      interestStartDate: data.get('interestStartDate'),
       openingBalance: isEditing ? undefined : Number(data.get('openingBalance') || 0),
-      openingBalanceDate: data.get('openingBalanceDate'),
+      openingBalanceDate: isEditing ? undefined : data.get('openingBalanceDate'),
       notes: data.get('notes'),
     });
     onClose();
@@ -32,20 +31,12 @@ export function UdharModal({ t, account, onClose, onSave }) {
           <Field label={t('monthlyInterestRate')}>
             <input name="monthlyInterestRate" type="number" min="0" max="100" step="0.1" defaultValue={account?.monthlyInterestRate || 0} />
           </Field>
-          <Field label={t('interestStartDate')}>
-            <input name="interestStartDate" type="date" defaultValue={account?.interestStartDate || new Date().toISOString().slice(0, 10)} />
-          </Field>
-        </div>
-        {!isEditing && (
-          <div className="formGrid">
+          {!isEditing ? (
             <Field label={t('openingBalance')}>
               <input name="openingBalance" type="number" placeholder="0" defaultValue="0" />
             </Field>
-            <Field label={t('openingBalanceDate')}>
-              <input name="openingBalanceDate" type="date" defaultValue={new Date().toISOString().slice(0, 10)} />
-            </Field>
-          </div>
-        )}
+          ) : null}
+        </div>
         <Field label={t('note')}>
           <input name="notes" placeholder={t('accountNoteHint')} defaultValue={account?.notes || ''} />
         </Field>

@@ -1,3 +1,4 @@
+import { Plus } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { DateFilter } from './components/filters/DateFilter.jsx';
 import { AppShell } from './components/layout/AppShell.jsx';
@@ -10,6 +11,7 @@ import { ConfirmDeleteModal, ExpenseModal, UdharModal, UdharTransactionModal, Us
 import { AuthShell } from './pages/auth/AuthShell.jsx';
 import { LoginPage } from './pages/auth/LoginPage.jsx';
 import { BudgetPage, DashboardPage, ExpensesPage, ReportsPage, UdharPage, UsersAdminPage } from './pages/index.js';
+import { protectedRoutes, udharAccountIdFromPath, udharAccountPath } from './routes/appRoutes.js';
 import { getSession, loginUser, logoutUser, request } from './services/httpClient.js';
 
 export default function App() {
@@ -24,8 +26,8 @@ export default function App() {
   const [editingUdhar, setEditingUdhar] = useState(null);
   const [transactionOpen, setTransactionOpen] = useState(false);
   const [editingUdharTransaction, setEditingUdharTransaction] = useState(null);
+  const [preferredUdharTransactionType, setPreferredUdharTransactionType] = useState('debit');
   const [activeUdharAccount, setActiveUdharAccount] = useState(null);
-  const [selectedUdharAccountId, setSelectedUdharAccountId] = useState('');
   const [editingUser, setEditingUser] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [users, setUsers] = useState([]);
@@ -33,8 +35,10 @@ export default function App() {
 
   const t = (key) => dictionary[state.locale][key] || key;
   const isAdmin = auth.user?.role === 'admin' || auth.user?.role === 'owner';
-  const { route, navigate } = useAppRoute(isAdmin);
+  const { route, path, navigate, navigatePath } = useAppRoute(isAdmin);
   const activeRoute = isAdmin ? 'users' : route;
+  const udharRouteAccountId = udharAccountIdFromPath(path);
+  const isUdharListRoute = activeRoute === 'udhar' && !udharRouteAccountId;
   const label = (key) => categories.find((item) => item.key === key)?.[state.locale] || key;
   const availableMonths = useMemo(() => getExpenseMonths(state.expenses), [state.expenses]);
   const activeBudgetMonth = getActiveBudgetMonth(state.filters);
@@ -193,7 +197,10 @@ export default function App() {
   async function loadUdharAccounts() {
     const { data } = await request('/api/udhar/accounts');
     setState((prev) => ({ ...prev, udhar: data || [] }));
-    setSelectedUdharAccountId((current) => current || data?.[0]?.id || '');
+    const routeAccountId = udharAccountIdFromPath(window.location.pathname);
+    if (routeAccountId && !(data || []).some((account) => account.id === routeAccountId)) {
+      navigatePath(protectedRoutes.udhar, { replace: true });
+    }
     return data || [];
   }
 
@@ -201,7 +208,7 @@ export default function App() {
     try {
       const { data } = await request('/api/udhar/accounts', { method: 'POST', body: JSON.stringify(payload) });
       setState((prev) => ({ ...prev, udhar: [data, ...prev.udhar] }));
-      setSelectedUdharAccountId(data.id);
+      navigatePath(udharAccountPath(data.id));
       return data;
     } catch (error) {
       setSyncError(error.message || 'Could not save udhar account.');
@@ -214,6 +221,7 @@ export default function App() {
     try {
       const { data } = await request(`/api/udhar/accounts/${editingUdhar.id}`, { method: 'PUT', body: JSON.stringify(payload) });
       setState((prev) => ({ ...prev, udhar: prev.udhar.map((item) => (item.id === data.id ? data : item)) }));
+      if (udharRouteAccountId === data.id) navigatePath(udharAccountPath(data.id), { replace: true });
       return data;
     } catch (error) {
       setSyncError(error.message || 'Could not update udhar account.');
@@ -231,7 +239,10 @@ export default function App() {
       }
       const accounts = await loadUdharAccounts();
       const nextAccount = accounts.find((account) => account.id === accountId);
-      if (nextAccount) setActiveUdharAccount(nextAccount);
+      if (nextAccount) {
+        setActiveUdharAccount(nextAccount);
+        navigatePath(udharAccountPath(nextAccount.id), { replace: true });
+      }
       return nextAccount;
     } catch (error) {
       setSyncError(error.message || 'Could not save ledger entry.');
@@ -265,7 +276,9 @@ export default function App() {
       if (deleteTarget.type === 'udhar') {
         await request(`/api/udhar/accounts/${deleteTarget.item.id}`, { method: 'DELETE' });
         setState((prev) => ({ ...prev, udhar: prev.udhar.filter((item) => item.id !== deleteTarget.item.id) }));
-        if (selectedUdharAccountId === deleteTarget.item.id) setSelectedUdharAccountId('');
+        if (udharRouteAccountId === deleteTarget.item.id) {
+          navigatePath(protectedRoutes.udhar, { replace: true });
+        }
       }
       if (deleteTarget.type === 'udharTransaction') {
         await request(`/api/udhar/transactions/${deleteTarget.item.id}`, { method: 'DELETE' });
@@ -323,6 +336,14 @@ export default function App() {
     }
   }
 
+  function openUdharAccount(account) {
+    navigatePath(udharAccountPath(account.id));
+  }
+
+  function closeUdharAccount() {
+    navigatePath(protectedRoutes.udhar);
+  }
+
   if (auth.status === 'checking') return <AuthShell t={t} message={t('checkingSession')} />;
   if (auth.status === 'guest') return <LoginPage t={t} error={auth.error} onLogin={login} />;
   if (dataStatus === 'loading') return <AuthShell t={t} message={t('loadingData')} />;
@@ -330,6 +351,25 @@ export default function App() {
   return (
     <AppShell
       activeRoute={activeRoute}
+      headerActions={
+        activeRoute === 'udhar'
+          ? isUdharListRoute
+            ? (
+                <button
+                  className="primaryBtn iconBtn"
+                  onClick={() => {
+                    setEditingUdhar(null);
+                    setUdharOpen(true);
+                  }}
+                >
+                  <Plus aria-hidden="true" />
+                  {t('addAccount')}
+                </button>
+              )
+            : null
+          : undefined
+      }
+      hideHeader={activeRoute === 'udhar' && Boolean(udharRouteAccountId)}
       isAdmin={isAdmin}
       metrics={metrics}
       syncError={syncError}
@@ -374,10 +414,12 @@ export default function App() {
       {activeRoute === 'udhar' && (
         <UdharPage
           accounts={metrics.udharBalances}
-          selectedAccountId={selectedUdharAccountId}
+          selectedAccountId={udharRouteAccountId}
+          routeAccountId={udharRouteAccountId}
           t={t}
           locale={state.locale}
-          onSelectAccount={(account) => setSelectedUdharAccountId(account.id)}
+          onBack={closeUdharAccount}
+          onSelectAccount={openUdharAccount}
           onAddAccount={() => {
             setEditingUdhar(null);
             setUdharOpen(true);
@@ -387,9 +429,10 @@ export default function App() {
             setUdharOpen(true);
           }}
           onDeleteAccount={(account) => setDeleteTarget({ type: 'udhar', item: account })}
-          onAddTransaction={(account) => {
+          onQuickTransaction={(account, type) => {
             setActiveUdharAccount(account);
             setEditingUdharTransaction(null);
+            setPreferredUdharTransactionType(type || 'debit');
             setTransactionOpen(true);
           }}
           onEditTransaction={(account, transaction) => {
@@ -445,10 +488,12 @@ export default function App() {
         <UdharTransactionModal
           t={t}
           account={activeUdharAccount}
+          initialType={preferredUdharTransactionType}
           transaction={editingUdharTransaction}
           onClose={() => {
             setTransactionOpen(false);
             setEditingUdharTransaction(null);
+            setPreferredUdharTransactionType('debit');
             setActiveUdharAccount(null);
           }}
           onSave={saveUdharTransaction}

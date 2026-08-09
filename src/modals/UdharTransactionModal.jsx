@@ -1,8 +1,10 @@
 import { Save } from 'lucide-react';
 import { Field, Modal } from '../components/ui/index.js';
 
-export function UdharTransactionModal({ t, transaction, account, onClose, onSave }) {
+export function UdharTransactionModal({ t, transaction, account, initialType = 'debit', onClose, onSave }) {
   const isEditing = Boolean(transaction);
+  const defaultType = transaction?.type || initialType;
+  const modalTitle = isEditing ? t('editLedgerEntry') : defaultType === 'credit' ? t('addCredit') : t('addDebit');
 
   async function submit(event) {
     event.preventDefault();
@@ -18,18 +20,18 @@ export function UdharTransactionModal({ t, transaction, account, onClose, onSave
   }
 
   return (
-    <Modal title={isEditing ? t('editLedgerEntry') : t('addLedgerEntry')} onClose={onClose}>
+    <Modal title={modalTitle} onClose={onClose}>
       <form onSubmit={submit} className="form">
         <Field label={t('person')}>
           <input value={account.name} readOnly />
         </Field>
         <div className="directionGrid">
           {[
-            ['debit', t('youGave')],
-            ['credit', t('youGot')],
+            ['debit', t('give')],
+            ['credit', t('got')],
           ].map(([value, label]) => (
             <label key={value}>
-              <input type="radio" name="type" value={value} defaultChecked={(transaction?.type || 'debit') === value} />
+              <input type="radio" name="type" value={value} defaultChecked={defaultType === value} />
               {label}
             </label>
           ))}
