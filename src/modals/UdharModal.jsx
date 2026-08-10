@@ -7,12 +7,13 @@ export function UdharModal({ t, account, onClose, onSave }) {
   async function submit(event) {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
+    const openingBalanceDate = data.get('openingBalanceDate');
     await onSave({
       name: data.get('name'),
       phone: data.get('phone'),
       monthlyInterestRate: Number(data.get('monthlyInterestRate') || 0),
       openingBalance: isEditing ? undefined : Number(data.get('openingBalance') || 0),
-      openingBalanceDate: isEditing ? undefined : data.get('openingBalanceDate'),
+      openingBalanceDate: isEditing || !openingBalanceDate ? undefined : openingBalanceDate,
       notes: data.get('notes'),
     });
     onClose();
